@@ -7,7 +7,8 @@
 using std::cin;
 using std::cout;
 
-double h;
+double h_x;
+double h_y;
 
 /*
 This function determines if the given argument is a interior point of grid or not.
@@ -25,7 +26,42 @@ bool isInteriorPoint(const size_t &index, const size_t &numGridX, const size_t &
 /*
 This function sets the initial boundary conditions defined by function g in the exercise sheet 
 */
+
 void setBCs(std::vector<double> &u, const size_t &numGridX, const size_t &numGridY)
+{
+      double x1,y1,x2,y2;
+      size_t size = numGridX*numGridY;
+      for(size_t i=0, j=(numGridY-1)*numGridX; i<numGridX, j<size; ++i,++j)
+      {
+            x1 = h_x*(i%numGridX);
+            x2 = h_x*(j%numGridX);
+            y1 = 0.0;
+            y2 = h_y*(numGridY-1);
+
+            u[i] = sin(M_PI*x1)*sinh(M_PI*y1);
+            u[j] = sin(M_PI*x2)*sinh(M_PI*y2);
+      }
+
+      size_t leftIndex = numGridX;
+      size_t rightIndex;
+      
+
+      while(leftIndex < size)
+      {
+            rightIndex = leftIndex + numGridX - 1;
+            x1 = h_x*(leftIndex%numGridX);
+            x2 = h_x*(rightIndex%numGridX); 
+            y1 = h_y*(leftIndex/numGridX);
+            y2 = h_y*(rightIndex/numGridX); 
+
+            u[leftIndex] = sin(M_PI*x1)*sinh(M_PI*y1);
+            u[rightIndex] = sin(M_PI*x2)*sinh(M_PI*y2);
+
+            leftIndex+= numGridX;
+      }
+}
+
+/*void setBCs(std::vector<double> &u, const size_t &numGridX, const size_t &numGridY)
 {
         size_t size = numGridX*numGridY;
         for(size_t i=0; i < size; ++i)
@@ -40,7 +76,7 @@ void setBCs(std::vector<double> &u, const size_t &numGridX, const size_t &numGri
                         
                  
         }
-}
+}*/
 
 /*
 This function displays the grid entries
@@ -69,10 +105,12 @@ int main()
 	
 	// Initialisation
 	// n is numeber of interval x or y direction.
-	size_t n=4;
-	h = 1.0/n;
-	size_t numGridX = n+1;
-	size_t numGridY = n+1;
+	size_t n_x=4;
+  size_t n_y= 4;
+	h_x = 1.0/n_x;
+  h_y = 1.0/n_y;
+	size_t numGridX = n_x+1;
+	size_t numGridY = n_y+1;
 	
 	// Allocate memory dynamically 
 	std::vector<double> u(numGridX*numGridY,0.0);
