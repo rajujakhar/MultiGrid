@@ -31,7 +31,7 @@ void setBCs(std::vector<double> &u, const size_t &numGridX, const size_t &numGri
 {
       double x1,y1,x2,y2;
       size_t size = numGridX*numGridY;
-      for(size_t i=0, j=(numGridY-1)*numGridX; (i<numGridX) && (j<size); ++i,++j)
+      for(size_t i=0, j=(numGridY-1)*numGridX; i<numGridX, j<size; ++i,++j)
       {
             x1 = h_x*(i%numGridX);
             x2 = h_x*(j%numGridX);
