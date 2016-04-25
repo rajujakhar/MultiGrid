@@ -19,32 +19,19 @@ This function restricts the GridUtill class to create one object
 */
 GridUtil GridUtil::createInstance(const size_t &n)
 {
-        try
+        if(numObjects ==0)
         {
-                if(numObjects ==0)
-                {
-                        GridUtil grid(n);
-                        numObjects++;
-                        return grid;
+                GridUtil grid(n);
+                numObjects++;
+                return grid;
                  
-                }
-                else
-                {
-                        throw "More than one object creation NOT allowed in the Singelton class\n";
-                }
         }
-        
-        catch (std::exception &e)
+        else
         {
-                std::cout << "An Exception occured and detected: " << e.what() << "\n";
-        } 
-        
-        catch (...)
-        {
-                std::cout << "An Exception occured: " << "\n";
-               // return nullptr;
+                throw "More than one object creation NOT allowed in the Singelton class\n";
+                //return nullptr;
+                
         }
-        
         
 }        
 /*

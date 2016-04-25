@@ -1,18 +1,20 @@
 CXX = g++
-CXXFLAGS = -std=c++0x -Wall -Wextra -Wshadow -Werror -Winline -O3 -DNDEBUG
+CXXFLAGS = -std=c++0x -Wall -Wextra -Wshadow -Werror # -Winline -O3 -DNDEBUG
 
 
-TARGET = main
-OBJS = $(TARGET).o
+TARGET1 = main
+TARGET2 = gridUtil
+OBJS = $(TARGET1).o $(TARGET2).o 
 EXEC = mgsolve
 
-all: $(TARGET)
+$(EXEC): $(OBJS) 
+	$(CXX) $(CXXFLAGS)  -o $(EXEC) $(OBJS)
 
-$(TARGET): $(OBJS) 
-	$(CXX) $(CXXFLAGS) -o $(EXEC) $(OBJS) 
-
-$(TARGET).o: $(TARGET).cpp 
-	$(CXX) -c $(CXXFLAGS)  $(TARGET).cpp
+$(TARGET1).o: $(TARGET1).cpp 
+	$(CXX) -c $(CXXFLAGS)  $(TARGET1).cpp
+	
+$(TARGET2).o: $(TARGET2).cpp 
+	$(CXX) -c $(CXXFLAGS)  $(TARGET2).cpp	
 
 clean:
 	@$(RM) -rf *.o $(EXEC)
