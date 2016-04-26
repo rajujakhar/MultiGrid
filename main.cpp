@@ -16,8 +16,16 @@ int main()
 	       grid.setBCs();
 	       grid.displayGrid();
 	}
+        catch (const std::string &s){
+                std::cout << "An Exception occured: " << s << "\n";
+        }
+
+        catch (const char* s){
+                std::cout << "An Exception occured: " << *s << "\n";
+        }
+
         catch (...){
-                std::cout << "An Exception occured: " << "\n";
+                std::cout << "An Exception occured: "  << "\n";
         }
 	//GridUtil* grid1 = GridUtil::createInstance(n);
 	
