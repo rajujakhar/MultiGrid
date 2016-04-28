@@ -1,34 +1,42 @@
-#include "gridUtil.h"
+#include "Grid.h"
 
 // Initialise the static variable numObjects with 0
-size_t GridUtil::numObjects = 0; 
+size_t Grid::numObjects = 0; 
 
-GridUtil::GridUtil(const size_t &n) : numGridX_(n+1), numGridY_(numGridX_), hx_(1.0/n), hy_(hx_) 
+Grid::Grid(const size_t &level) 
 {
+        size_t temp = pow(2,level);
+        hx_ = 1.0/temp;
+        hy_ = hx_;
+        numGridX_ = temp+1;
+        numGridY_ = numGridX_; 
+        /// numTotPoints is number of total grid points including boundary;
         size_t numTotPoints=numGridX_*numGridY_;
         this->u_.resize(numTotPoints);
         this->f_.resize(numTotPoints);
+        this->err_.resize(numTotPoints);
         
-        // Initialize u_ and f_ with zeros using generic algorithm defined in algorithm header
+        // Initialize u_ and f_ and err_ with zeros using generic algorithm defined in algorithm header
         std::fill(this->u_.begin(), this->u_.end(), 0.0);
         std::fill(this->f_.begin(), this->f_.end(), 0.0);
+        std::fill(this->err_.begin(), this->err_.end(), 0.0);
 }
 
 /*
 This function restricts the GridUtill class to create one object
 */
-GridUtil GridUtil::createInstance(const size_t &n)
+Grid Grid::createInstance(const size_t &numLevel)
 {
         if(numObjects ==0)
         {
-                GridUtil grid(n);
+                Grid grid(numLevel);
                 numObjects++;
                 return grid;
                  
         }
         else
         {
-                throw "More than one object creation NOT allowed in the Singelton class\n";
+                throw std::string("More than one object creation NOT allowed in the Singelton class\n");
                 //return nullptr;
                 
         }
@@ -37,7 +45,7 @@ GridUtil GridUtil::createInstance(const size_t &n)
 /*
 This function sets the initial boundary conditions defined by function g in the exercise sheet 
 */
-void GridUtil::setBCs()
+void Grid::setBCs()
 {
       double x1,y1,x2,y2;
       size_t size = numGridX_*numGridY_;
@@ -93,7 +101,7 @@ void setBCs(std::vector<double> &u, const size_t &numGridX_, const size_t &numGr
 /*
 This function determines if the given argument is a interior point of grid or not.
 */
-bool GridUtil::isInteriorPoint(const size_t &index)
+bool Grid::isInteriorPoint(const size_t &index)
 {
        if( (index%numGridX_ ==0) || ((index+1)%numGridX_ ==0 ))
        return false;
@@ -106,7 +114,7 @@ bool GridUtil::isInteriorPoint(const size_t &index)
 /*
 This function displays the grid entries of u_  
 */
-void GridUtil::displayGrid() const
+void Grid::displayGrid() const
 {
         //u_[0] = 0;
         std::cout << "Grid Entries:\n ";

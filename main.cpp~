@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 	// Initialisation
 	// n is numeber of interval x or y direction.
 	std::cout << "Number of arguments are: " << argc <<  std::endl;
-	assert(argc == 3);
+	assert(argc == 2);
 	
 	int numLevel = std::stoi(argv[1]);
 	int numVcycle= std::stoi(argv[2]);
