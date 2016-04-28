@@ -21,24 +21,12 @@ int main(int argc, char **argv)
 	       grid.setBCs();
 	       grid.displayGrid();
 	}
-<<<<<<< HEAD
+
 	catch (std::string &str) {
 	        std::cout << "An Exception occured: " << str << "\n";
 	}
-=======
-        catch (const std::string &s){
-                std::cout << "An Exception occured: " << s << "\n";
-        }
 
-        catch (const char* s){
-                std::cout << "An Exception occured: " << *s << "\n";
-        }
-
->>>>>>> 8710698e095939bd7c78be3423ec5e48fff1a50a
-        catch (...){
-                std::cout << "An Exception occured: "  << "\n";
-        }
-	//Grid* grid1 = Grid::createInstance(n);
+       
 	
 	MultiGridSolver m(3,2);
 	
