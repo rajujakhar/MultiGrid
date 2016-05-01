@@ -1,33 +1,35 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra -Wshadow -Werror  -Winline -O3
 
-
 TARGET1 = main
 TARGET2 = Grid
 TARGET3 = MultiGridSolver
+TARGET4 = GridUtil
+TARGET5 = TwoDimArr
 
-OBJS = $(TARGET1).o $(TARGET2).o $(TARGET3).o 
-INCL = ./include/$(TARGET3).h
+OBJS =  $(TARGET1).o $(TARGET2).o $(TARGET3).o $(TARGET4).o $(TARGET5).o
 EXEC = mgsolve
 
 $(EXEC): $(OBJS)
-	$(CXX) $(CXXFLAGS) ./test/$(TARGET1).o ./src/$(TARGET2).o ./src/$(TARGET3).o -o $(EXEC)  
-	
+	$(CXX) $(CXXFLAGS) ./test/$(TARGET1).o ./src/$(TARGET2).o ./src/$(TARGET3).o ./src/$(TARGET4).o ./src/$(TARGET5).o -o $(EXEC)  
 
-$(TARGET1).o: ./test/$(TARGET1).cpp ./include/$(TARGET3).h
+$(TARGET1).o: ./test/$(TARGET1).cpp
 	$(CXX) -c $(CXXFLAGS)  ./test/$(TARGET1).cpp -I ./include/ -o ./test/$(TARGET1).o
-
 	
-$(TARGET2).o: ./src/$(TARGET2).cpp ./include/$(TARGET2).h
+$(TARGET2).o: ./src/$(TARGET2).cpp
 	$(CXX) -c $(CXXFLAGS)  ./src/$(TARGET2).cpp -I ./include/ -o ./src/$(TARGET2).o 
 
-$(TARGET3).o: ./src/$(TARGET3).cpp ./include/$(TARGET3).h 
+$(TARGET3).o: ./src/$(TARGET3).cpp
 	$(CXX) -c $(CXXFLAGS)  ./src/$(TARGET3).cpp -I ./include/ -o ./src/$(TARGET3).o
+
+$(TARGET4).o: ./src/$(TARGET4).cpp
+	$(CXX) -c $(CXXFLAGS)  ./src/$(TARGET4).cpp -I ./include/ -o ./src/$(TARGET4).o
+
+$(TARGET5).o: ./src/$(TARGET5).cpp
+	$(CXX) -c $(CXXFLAGS)  ./src/$(TARGET5).cpp -I ./include/ -o ./src/$(TARGET5).o		
 	
-
-
 clean:
 	@$(RM) -rf ./src/*.o ./test/*.o *.o $(EXEC)
 
 run:
-	 ./$(EXEC) 3 2
+	 ./$(EXEC) 2 2

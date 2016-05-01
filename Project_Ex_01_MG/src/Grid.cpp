@@ -1,31 +1,31 @@
 #include "Grid.h"
 
-// Initialise the static variable numObjects with 0
-size_t Grid::numObjects = 0; 
 
 Grid::Grid(const size_t &level) 
 {
-        size_t temp = pow(2,level);
-        hx_ = 1.0/temp;
-        hy_ = hx_;
-        numGridX_ = temp+1;
-        numGridY_ = numGridX_; 
+        const size_t temp = pow(2,level);
+        h_ = 1.0/temp;
+        numGrid_ = temp+1;
+        //numGridY_ = numGridX_; 
         /// numTotPoints is number of total grid points including boundary;
-        size_t numTotPoints=numGridX_*numGridY_;
-        this->u_.resize(numTotPoints);
-        this->f_.resize(numTotPoints);
-        this->err_.resize(numTotPoints);
+        const size_t numTotPoints=numGrid_*numGrid_;
+        //this->u_.data_.resize(numTotPoints);
+        this->f_.data_.resize(numTotPoints,0.0);
+        this->err_.data_.resize(numTotPoints,0.0);
+        std::cout << "Level " << level << " grid constructed with total grid points " << numTotPoints << std::endl;
         
         // Initialize u_ and f_ and err_ with zeros using generic algorithm defined in algorithm header
-        std::fill(this->u_.begin(), this->u_.end(), 0.0);
-        std::fill(this->f_.begin(), this->f_.end(), 0.0);
-        std::fill(this->err_.begin(), this->err_.end(), 0.0);
+        //std::fill(this->u_.begin(), this->u_.end(), 0.0);
+        //std::fill(this->f_.begin(), this->f_.end(), 0.0);
+        //std::fill(this->err_.begin(), this->err_.end(), 0.0);
         
 }
 
+
+
 /*
 This function restricts the GridUtill class to create one object
-*/
+
 Grid Grid::createInstance(const size_t &numLevel)
 {
         if(numObjects ==0)
@@ -42,10 +42,11 @@ Grid Grid::createInstance(const size_t &numLevel)
                 
         }
         
-}        
-/*
-This function sets the initial boundary conditions defined by function g in the exercise sheet 
-*/
+}
+        
+
+//This function sets the initial boundary conditions defined by function g in the exercise sheet 
+
 void Grid::setBCs()
 {
       double x1,y1,x2,y2;
@@ -58,7 +59,7 @@ void Grid::setBCs()
             y2 = hy_*(numGridY_-1);
 
             this->u_[i] = sin(M_PI*x1)*sinh(M_PI*y1);
-            this->u_[j] = sin(M_PI*x2)*sinh(M_PI*y2);
+            this->u_                                                                                                                                                                  [j] = sin(M_PI*x2)*sinh(M_PI*y2);
       }
 
       size_t leftIndex = numGridX_;
@@ -80,7 +81,7 @@ void Grid::setBCs()
 }
 
 
-/* Previous version of expensive setBCs method, Please do not remove this commented code
+// Previous version of expensive setBCs method, Please do not remove this commented code
 void setBCs(std::vector<double> &u, const size_t &numGridX_, const size_t &numGridY_)
 {
         size_t size = numGridX_*numGridY_;
@@ -96,12 +97,11 @@ void setBCs(std::vector<double> &u, const size_t &numGridX_, const size_t &numGr
                         
                  
         }
-}*/
+}
       
 
-/*
 This function determines if the given argument is a interior point of grid or not.
-*/
+
 bool Grid::isInteriorPoint(const size_t &index)
 {
        if( (index%numGridX_ ==0) || ((index+1)%numGridX_ ==0 ))
@@ -112,9 +112,8 @@ bool Grid::isInteriorPoint(const size_t &index)
        return true; 
 }
 
-/*
 This function displays the grid entries of u_  
-*/
+
 void Grid::displayGrid() const
 {
         //u_[0] = 0;
@@ -134,5 +133,5 @@ void Grid::displayGrid() const
 }
 
 //int main() {std::cout <<"Check if main working\n";}
-
+*/
         
