@@ -12,7 +12,7 @@ OBJS =  $(TARGET1).o $(TARGET2).o $(TARGET3).o $(TARGET4).o $(TARGET5).o $(TARGE
 EXEC = mgsolve
 
 $(EXEC): $(OBJS)
-	$(CXX) $(CXXFLAGS) ./test/$(TARGET1).o ./src/$(TARGET2).o ./src/$(TARGET3).o ./src/$(TARGET4).o ./src/$(TARGET5).o ./src/$(TARGET6).o -o $(EXEC)  
+	$(CXX) $(CXXFLAGS) ./test/$(TARGET1).o ./src/$(TARGET2).o ./src/$(TARGET3).o ./src/$(TARGET4).o ./src/$(TARGET5).o -o $(EXEC)  
 
 $(TARGET1).o: ./test/$(TARGET1).cpp
 	$(CXX) -c $(CXXFLAGS)  ./test/$(TARGET1).cpp -I ./include/ -o ./test/$(TARGET1).o

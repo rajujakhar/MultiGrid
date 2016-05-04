@@ -25,45 +25,37 @@ void displayGrid(const TwoDimArr &u, const size_t &level)
 
 int main(int argc, char **argv)
 {
-	std::cout << "Welcome to Multigrid Methods in SiWiR2\n";
+	//std::cout << "Welcome to Multigrid Methods in SiWiR2\n";
 
-	std::cout << "Number of arguments are: " << argc <<  std::endl;
+	//std::cout << "Number of arguments are: " << argc <<  std::endl;
 	assert(argc == 3);
 	
 	int numLevel = std::stoi(argv[1]);
 	int numVcycle= std::stoi(argv[2]);
 	
-        std::cout << "No of level: "<< numLevel << " Number  of  V cycles:  " << numVcycle << std::endl; 
+        //std::cout << "No of level: "<< numLevel << " Number  of  V cycles:  " << numVcycle << std::endl; 
 	
 	GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();
 	gridUtil.displayGrid();
 	
-	TwoDimArr u = gridUtil.getVec();
-	
-	//Do not uncomment the following code portion        
-	/*
-	 Creates an instance of Grid class
+	// Creates an instance of MultiGridSolver class and compute the solution using Multigrid solver
 	try{
-	       Grid grid= Grid::createInstance(numLevel);
+	       MultiGridSolver m= MultiGridSolver::createInstance(numLevel,numVcycle,gridUtil.getVec());
 	      // Grid grid1= Grid::createInstance(n);
-	       grid.setBCs();
-	       grid.displayGrid();
-	}
+	      //std::cout << "Compute Solution will be called now\n";
+	      m.computeSolution();
+	      // m.displayGrid();
+	      gridUtil.displayGrid(m.getSolVec());
+	      gridUtil.writeSol(m.getSolVec());
+	   }
 
         catch (const std::string &s){
                 std::cout << "An Exception occured: " << s << "\n";
         }
 
-        catch (const char* s){
-                std::cout << "An Exception occured: " << *s << "\n";
-        }*/
-        std::cout << "\n\n\n";
-       	MultiGridSolver m(numLevel,numVcycle,u);
-       	m.computeSolution();
-	std::cout << "Solution computed after multiGrid:\n";
-	std::cout << "\n\n\n";
-	displayGrid(m.getSolVec(),numLevel);	
-       
-	
+        catch (...){
+                std::cout << "Some Exception occured " << "\n";
+        }
+        
 }
