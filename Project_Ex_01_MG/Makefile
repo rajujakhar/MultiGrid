@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -fopenmp -Wall -Wextra -Wshadow -Werror  -Winline -O3
+CXXFLAGS = -std=c++11 -Wall -Wextra -Wshadow -Werror  -Winline -O3
 
 TARGET1 = main
 TARGET2 = Grid

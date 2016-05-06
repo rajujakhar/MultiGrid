@@ -35,9 +35,9 @@ int main(int argc, char **argv)
 	
         //std::cout << "No of level: "<< numLevel << " Number  of  V cycles:  " << numVcycle << std::endl; 
 	
-	GridUtil gridUtil(numLevel);
+	class GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();
-	gridUtil.displayGrid();
+	//gridUtil.displayGrid();
 	
 	// Creates an instance of MultiGridSolver class and compute the solution using Multigrid solver
 	try{

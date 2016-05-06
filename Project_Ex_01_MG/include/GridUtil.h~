@@ -22,7 +22,7 @@ public:
         void displayGrid(const TwoDimArr &) const;
         void displayGrid() const;
         TwoDimArr& getVec();
-        void writeSolution(const TwoDimArr &) const;
+        void writeSol(const TwoDimArr &) const;
        
 };
 

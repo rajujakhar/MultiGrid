@@ -2,39 +2,7 @@
 #define MG_SOLVER
 #include "Grid.h"
 #include "Stencil.h"
-//#include <omp.h>
-/*
-// The following Stencil stores information about matrix A which is used to multiply A with u
-struct Stencil4Point {
-        const real c = 4.0;
-        const real n =-1.0;
-        const real s =-1.0;
-        const real w = -1.0;
-        const real e = -1.0;
-};
 
-// The following stencil is used for full weighting restriction
-struct StencilRestrict {
-        const real sw=0.0625;   // weightage is 1/16
-        const real s=0.125;     // weightage is 1/8
-        const real se=0.0625;  
-        const real w=0.125;
-        const real c=0.250;     // weightage is 1/4
-        const real e=0.125;
-        const real nw=0.0625;
-        const real n=0.125;
-        const real ne=0.0625;
-};
-
-// The following stencil is used for bilinear interpolation
-struct StencilProlong {
-        const real center=1.0;
-        const real right = 0.5;
-        const real up=0.5;
-        const real corner = 0.25; 
-};                
-        
-  */      
 
 class MultiGridSolver {
 private: 
@@ -57,6 +25,8 @@ private:
         void mgmSolve(const size_t&);
         void computeResidual(const size_t&);
         void displayGrid(const size_t&);
+        void displayGridf(const size_t&);
+        real calResNorm();
         MultiGridSolver(const size_t &, const size_t &, const TwoDimArr &);
         
 public:

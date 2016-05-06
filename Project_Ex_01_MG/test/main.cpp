@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	
 	GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();
-	gridUtil.displayGrid();
+	//gridUtil.displayGrid();
 	
 	// Creates an instance of MultiGridSolver class and compute the solution using Multigrid solver
 	try{
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	      //std::cout << "Compute Solution will be called now\n";
 	      m.computeSolution();
 	      // m.displayGrid();
-	      gridUtil.displayGrid(m.getSolVec());
+	      //gridUtil.displayGrid(m.getSolVec());
 	      gridUtil.writeSol(m.getSolVec());
 	   }
 
