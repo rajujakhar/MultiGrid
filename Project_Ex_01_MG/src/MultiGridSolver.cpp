@@ -66,7 +66,7 @@ void MultiGridSolver::computeSolution()
         for(size_t count=0; count< numVcycle_; ++count)
 	{
 	        mgmSolve(numLevel_);
-	        std::cout << " Residual norm after " << count+1 << " v-cycle is:  "  << calResNorm() << std::endl;
+	      //  std::cout << " Residual norm after " << count+1 << " v-cycle is:  "  << calResNorm() << std::endl;
         }
 }
 

@@ -23,6 +23,7 @@ public:
         void displayGrid() const;
         TwoDimArr& getVec();
         void writeSol(const TwoDimArr &) const;
+	void measureError(const TwoDimArr &);
        
 };
 

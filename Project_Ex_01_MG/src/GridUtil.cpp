@@ -124,9 +124,34 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
              
         f_out.close();
         f_act.close();
-        f_err.close();
-        
-        std::cout << "The Actual, computed solution and error solution has been written in actualSolution.txt, computedSolution.txt and errSolution.txt resp\n";        
+        f_err.close();       
+
+      //  std::cout << "The Actual, computed solution and error solution has been written in actualSolution.txt, computedSolution.txt and errSolution.txt resp\n";        
 }
 
+// This function writes the error after the Multi Grid solver has been completed
+void GridUtil::measureError(const TwoDimArr & a)
+{
+	real x,y,act,comp,diff,error = 0.0;
 
+	 for(size_t i=0; i<numGrid_ ; ++i)
+        {
+                for(size_t j=0; j<numGrid_ ;++j)
+                {
+                        x = j*h_ ; 
+                        y = i*h_;
+                        comp = a.data_[i*numGrid_+j];
+                        act = sin(M_PI*x)*sinh(M_PI*y);
+                 	diff = comp - act;
+			error += diff * diff;       
+		}        
+        }
+	error = std::sqrt(error);
+	
+	std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
+}
+		
+
+
+
+	

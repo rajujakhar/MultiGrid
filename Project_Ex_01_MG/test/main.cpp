@@ -48,6 +48,7 @@ int main(int argc, char **argv)
 	      // m.displayGrid();
 	      //gridUtil.displayGrid(m.getSolVec());
 	      gridUtil.writeSol(m.getSolVec());
+		gridUtil.measureError(m.getSolVec());
 	   }
 
         catch (const std::string &s){
