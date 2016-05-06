@@ -55,7 +55,7 @@ MultiGridSolver MultiGridSolver::createInstance(const size_t &numLevel, const si
 // Compute The solution by applying numVcycle_  
 void MultiGridSolver::computeSolution()
 {
-        real resNormNew, resNormOld=0, convRate;
+        real resNormNew, resNormOld=0, dummyVar=0, convRate;
         
         if(numLevel_ ==1)
         {
@@ -73,11 +73,14 @@ void MultiGridSolver::computeSolution()
 	        if(count >0)
 	        {
 	                convRate = resNormNew/resNormOld;
-                        std::cout << "Convergence rate after " << count+1 << " V-Cycle is " << convRate << std::endl;	        
+                        //std::cout << "Convergence rate after " << count+1 << " V-Cycle is " << convRate << std::endl;	        
 	        }
 	        
 	        resNormOld = resNormNew;
         }
+        
+        //Comment this for the production code
+        dummyVar += convRate;
 }
 
 // This function is written to compute norm of the residual after each V Cycle 
@@ -114,8 +117,8 @@ MultiGridSolver::~MultiGridSolver()
         /*for(size_t i=0 ; i< numLevel_; ++i)
                 {
                 delete gridVec_[i];
-                }*/
-                
+                }
+          */      
                 
        // std::cout << "Done with destruction of objects\n";       
 }

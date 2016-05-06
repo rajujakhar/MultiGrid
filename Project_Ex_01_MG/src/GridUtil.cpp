@@ -148,7 +148,7 @@ void GridUtil::measureError(const TwoDimArr & a)
         }
 	error = std::sqrt(error);
 	
-	std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
+	//std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
 }
 		
 
