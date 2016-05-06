@@ -55,18 +55,28 @@ MultiGridSolver MultiGridSolver::createInstance(const size_t &numLevel, const si
 // Compute The solution by applying numVcycle_  
 void MultiGridSolver::computeSolution()
 {
-        //std::cout <<  " computeSolution() \n ";
+        real resNormNew, resNormOld=0, convRate;
+        
         if(numLevel_ ==1)
         {
                 applyRBGS_Iter(1);
                 return;
         }        
         
-        std::cout << "numLevel_ : " << numLevel_ << std::endl; 
         for(size_t count=0; count< numVcycle_; ++count)
 	{
 	        mgmSolve(numLevel_);
-	      //  std::cout << " Residual norm after " << count+1 << " v-cycle is:  "  << calResNorm() << std::endl;
+	     
+	        resNormNew = calResNorm();
+	        //std::cout << "Discrete L2 residum norm after " <<  count+1 << " V-Cycle is " << resNormNew << std::endl;	
+	        
+	        if(count >0)
+	        {
+	                convRate = resNormNew/resNormOld;
+                        std::cout << "Convergence rate after " << count+1 << " V-Cycle is " << convRate << std::endl;	        
+	        }
+	        
+	        resNormOld = resNormNew;
         }
 }
 
@@ -87,7 +97,7 @@ real MultiGridSolver::calResNorm()
                 {       
                          temp = gridVec_[cgInd]->f_(i,j,numGrid) - (hSqInv*(s_.s_*gridVec_[cgInd]->u_(i-1,j,numGrid) + s_.w_*gridVec_[cgInd]->u_(i,j-1,numGrid)  + 
                          s_.c_*gridVec_[cgInd]->u_(i,j,numGrid) + s_.e_*gridVec_[cgInd]->u_(i,j+1,numGrid) + s_.n_*gridVec_[cgInd]->u_(i+1,j,numGrid)) );   
-                        
+                         
                          sum += temp*temp;
                 }
         }
@@ -160,7 +170,7 @@ void MultiGridSolver::applyRestriction(const size_t& level)
 void MultiGridSolver::applyInterpolation(const size_t& level)
 {
         //std::cout << "Level : " << level << " applyInterpolation() \n "; 
-        assert(level > 0);                      // Level 0 is not permitted
+        assert(level > 0 && level< numLevel_ );                      // Level 0 is not permitted
         
         const int cgInd = numLevel_- level;       
                                 
