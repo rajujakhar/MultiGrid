@@ -7,7 +7,7 @@
 //#define _USE_MATH_DEFINES
 #define M_PI  3.141592653589793
 #include <vector>
-//#include <algorithm>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <exception>

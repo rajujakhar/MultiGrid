@@ -15,24 +15,21 @@ int main(int argc, char **argv)
 	real timeStart=0., timeEnd=0.;
 	//gridUtil.displayGrid();
 	
-	// Creates an instance of MultiGridSolver class and compute the solution using Multigrid solver
+	// Creates a object of MultiGridSolver class and compute the solution using Multigrid solver
 	try
 	{
-	        MultiGridSolver m= MultiGridSolver::createInstance(numLevel,numVcycle,gridUtil.getVec());
+	       // MultiGridSolver m= MultiGridSolver::createInstance(numLevel,numVcycle,gridUtil.getVec());
+	        MultiGridSolver m= MultiGridSolver(numLevel,numVcycle,gridUtil.getVec());
 	        
 	        // Compute the time taken in the execution of main kernel of the code
                 timeStart = SiWiR2::getTimeStamp();
                 m.computeSolution();
                 timeEnd = SiWiR2::getTimeStamp();
                 
+                std::cout << "Solution computed after MultiGrid Solver computation: \n";
 	        //gridUtil.displayGrid(m.getSolVec());
                 gridUtil.writeSol(m.getSolVec());
                 gridUtil.measureError(m.getSolVec());
-        }
-
-        catch (const std::string &s)
-        {
-                std::cout << "An Exception occured: " << s << "\n";
         }
 
         catch (...)

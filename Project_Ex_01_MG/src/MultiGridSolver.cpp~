@@ -2,9 +2,9 @@
 
 
 //Initialise the counter of global objects by 0;
-size_t MultiGridSolver::numObjects=0;
+//size_t MultiGridSolver::numObjects=0;
 
-MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle, const TwoDimArr &u ): numLevel_(numLevel), numVcycle_(numVcycle), neu1_(4), neu2_(1)
+MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle, const TwoDimArr &u ): numLevel_(numLevel), numVcycle_(numVcycle), neu1_(1), neu2_(1),currVCycle_(1)
 {
         
       //  std::cout << this->gridVec_[0];
@@ -35,7 +35,7 @@ MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle
 
 
 //This function restricts the MultiGridSolver class to create one object.
-MultiGridSolver MultiGridSolver::createInstance(const size_t &numLevel, const size_t &num_Vcycle, const TwoDimArr &arr)
+/*MultiGridSolver MultiGridSolver::createInstance(const size_t &numLevel, const size_t &num_Vcycle, const TwoDimArr &arr)
 {
         
         if(numObjects ==0)
@@ -51,11 +51,12 @@ MultiGridSolver MultiGridSolver::createInstance(const size_t &numLevel, const si
         }
         
 }
+*/
 
 // Compute The solution by applying numVcycle_  
 void MultiGridSolver::computeSolution()
 {
-        real resNormNew, resNormOld=0, dummyVar=0, convRate;
+        real resNormNew, resNormOld=0, convRate, dummy;
         
         if(numLevel_ ==1)
         {
@@ -68,44 +69,71 @@ void MultiGridSolver::computeSolution()
 	        mgmSolve(numLevel_);
 	     
 	        resNormNew = calResNorm();
-	        //std::cout << "Discrete L2 residum norm after " <<  count+1 << " V-Cycle is " << resNormNew << std::endl;	
+	       std::cout << "Discrete L2 residum norm after " <<  count+1 << " V-Cycle is " << resNormNew << std::endl;	
+	        
+	        //displayGrid(numLevel_, count+1,std::string("res"));
 	        
 	        if(count >0)
 	        {
 	                convRate = resNormNew/resNormOld;
-                        //std::cout << "Convergence rate after " << count+1 << " V-Cycle is " << convRate << std::endl;	        
+                       // std::cout << "Convergence rate after " << count+1 << " V-Cycle    ----------->    " << convRate << std::endl;	        
 	        }
 	        
+	        // Display the current residual after each v cycle
+	       
 	        resNormOld = resNormNew;
+	        
+	        // Print u after 1 v cycle 
+	        //applyRBGS_Iter(numLevel_);
+	        //displayGrid(numLevel_,currVCycle_, std::string("u"));  
+	        // Increment the curr v cycle
+	        currVCycle_++;
+	        
+	        for(size_t i=1; i< numLevel_; ++i)
+	        std::fill(gridVec_[i]->u_.data_.begin(), gridVec_[i]->u_.data_.end(), 0.0 );
+	        
+	        
         }
         
-        //Comment this for the production code
-        dummyVar += convRate;
+        dummy = convRate;
+        std::cout << "wahe guru  "<<dummy << std::endl;
+        
+      
 }
 
 // This function is written to compute norm of the residual after each V Cycle 
-real MultiGridSolver::calResNorm()
+real MultiGridSolver::calResNorm() 
 {        
         size_t cgInd =0; 
         //std::cout << "Level : " << numLevel_ << " computeResNorm() \n "; 
         const size_t numGrid = gridVec_[cgInd]->numGrid_;    
         const real hSqInv = 1.0/(gridVec_[cgInd]->h_ * gridVec_[cgInd]->h_);
-        const real numInnerPoints = (numGrid-1)*(numGrid-1);
-        real sum=0.0,temp;
+       const real numInnerPoints = (numGrid-2)*(numGrid-2);
+        //const real numInnerPoints = (numGrid-0)*(numGrid-0);
+        real sum=0.0, temp, l2Norm=0.;
         
-        //Temp try include boundary points
+      
+       // std::cout << "REsidual display: " ;
+        //displayGrid(numLevel_);
+        
         for(size_t i=1; i<numGrid-1; ++i)
         {
                 for(size_t j=1; j<numGrid-1; ++j)
                 {       
                          temp = gridVec_[cgInd]->f_(i,j,numGrid) - (hSqInv*(s_.s_*gridVec_[cgInd]->u_(i-1,j,numGrid) + s_.w_*gridVec_[cgInd]->u_(i,j-1,numGrid)  + 
-                         s_.c_*gridVec_[cgInd]->u_(i,j,numGrid) + s_.e_*gridVec_[cgInd]->u_(i,j+1,numGrid) + s_.n_*gridVec_[cgInd]->u_(i+1,j,numGrid)) );   
+                        s_.c_*gridVec_[cgInd]->u_(i,j,numGrid) + s_.e_*gridVec_[cgInd]->u_(i,j+1,numGrid) + s_.n_*gridVec_[cgInd]->u_(i+1,j,numGrid)) );   
                          
-                         sum += temp*temp;
+                        // temp = gridVec_[cgInd]->res_(i,j,numGrid);
+                         sum += (temp*temp);
                 }
         }
         
-        return std::sqrt(sum/numInnerPoints);      
+        l2Norm = std::sqrt(sum/numInnerPoints);
+        
+
+        return l2Norm;
+        
+           
 }	
 
 	
@@ -113,14 +141,11 @@ MultiGridSolver::~MultiGridSolver()
 {
         //Deallocate the memory allocated on heap
         // Need to deallocate the memory. It is causing problems now, so commented below. Need to be fixed as heap memory has to be freed
-        //std::cout << "Coarse Grid Index: " << cgInd << " MultiGrid Destructor\n ";
+        std::cout << " MultiGrid Destructor\n ";
         for(size_t i=0 ; i< numLevel_; ++i)
                 {
                 delete gridVec_[i];
-                }
-                
-                
-       // std::cout << "Done with destruction of objects\n";       
+                } 
 }
 
 // This function smoothens the solution by applying RBGS Guass Seidel neu1_ times
@@ -132,7 +157,9 @@ void MultiGridSolver::applyPreSmoothing(const size_t& level)
                 applyRBGS_Iter(level);       
         }
         
-        //displayGrid();     
+        //std::cout << "After PreSmoothing\n";
+        //displayGrid(level,currVCycle_, std::string("u"));  
+        //displayGrid(level,currVCycle_, std::string("f"));        
 }
 
 // This function smoothens the solution by applying RBGS Guass Seidel neu2_ times
@@ -143,6 +170,9 @@ void MultiGridSolver::applyPostSmoothing(const size_t& level)
         {
                 applyRBGS_Iter(level);       
         }
+        
+        //std::cout << "After PostSmoothing\n";
+        //displayGrid(level,currVCycle_, std::string("u")); 
 }
 
 // The following function contanis logic in which error information is passed from current grid to coarser grid by pulling information from 8 neighbours.
@@ -161,11 +191,20 @@ void MultiGridSolver::applyRestriction(const size_t& level)
                         for(size_t j=2; j<numGrid-2; j+=2)
                                 {
                                         gridVec_[cgInd+1]->f_(0.5*i,0.5*j,numGridCoarser) = 
-                                        (r_.sw_*gridVec_[cgInd]->res_(i-1,j-1,numGrid)) + (r_.s_*gridVec_[cgInd]->res_(i-1,j,numGrid)) + (r_.se_*gridVec_[cgInd]->res_(i-1,j+1,numGrid)) +
-                                        (r_.w_*gridVec_[cgInd]->res_(i,j-1,numGrid))    + (r_.c_*gridVec_[cgInd]->res_(i,j,numGrid)) + (r_.e_*gridVec_[cgInd]->res_(i,j+1,numGrid)) +
-                                        (r_.nw_*gridVec_[cgInd]->res_(i+1,j-1,numGrid)) + (r_.n_*gridVec_[cgInd]->res_(i+1,j,numGrid)) + (r_.ne_*gridVec_[cgInd]->res_(i+1,j+1,numGrid));
+                                        
+                                                                                        (r_.sw_*gridVec_[cgInd]->res_(i-1,j-1,numGrid))         +
+                                                                                        (r_.s_*gridVec_[cgInd]->res_(i-1,j,numGrid))            + 
+                                                                                        (r_.se_*gridVec_[cgInd]->res_(i-1,j+1,numGrid))         +
+                                                                                        (r_.w_*gridVec_[cgInd]->res_(i,j-1,numGrid))            +
+                                                                                        (r_.c_*gridVec_[cgInd]->res_(i,j,numGrid))              +
+                                                                                        (r_.e_*gridVec_[cgInd]->res_(i,j+1,numGrid))            +
+                                                                                        (r_.nw_*gridVec_[cgInd]->res_(i+1,j-1,numGrid))         +
+                                                                                        (r_.n_*gridVec_[cgInd]->res_(i+1,j,numGrid))            + 
+                                                                                        (r_.ne_*gridVec_[cgInd]->res_(i+1,j+1,numGrid));
                                 }
                 }
+         
+         //displayGrid(level-1,currVCycle_, std::string("f"));         
                      
 }
 
@@ -181,6 +220,9 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
         //Get the number of grid points in current and finer grid
         size_t numGrid = gridVec_[cgInd]->numGrid_;
         size_t numGridFiner = gridVec_[cgInd-1]->numGrid_;
+        
+        //std::cout << "u before interpolation\n";
+        //displayGrid(level+1,currVCycle_, std::string("u")); 
         
         for(size_t i=0; i<numGrid-1; ++i)
         {
@@ -203,6 +245,27 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
                                                                                    
                 }
         }
+         //displayGrid(level+1,currVCycle_, std::string("u")); 
+        
+        // This code is copied from sachin's project to check for the residual error
+       /* for(size_t i=1; i<numGrid-1; ++i)
+        {
+                for(size_t j=1; j<numGrid-1; ++j)
+                {
+                
+                gridVec_[cgInd-1]->u_(2*i-1,2*j-1,numGridFiner)	+= 	p_.sw_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i-1,2*j,numGridFiner)	+= 	p_.s_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i-1,2*j+1,numGridFiner)  	+= 	p_.se_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i,2*j-1,numGridFiner) 	+= 	p_.w_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i,2*j,numGridFiner)         	+= 	p_.c_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i,2*j+1,numGridFiner) 	+= 	p_.e_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i+1,2*j-1,numGridFiner) 	+=    	p_.nw_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i+1,2*j,numGridFiner) 	+= 	p_.n_*gridVec_[cgInd]->u_(i,j,numGrid);
+		gridVec_[cgInd-1]->u_(2*i+1,2*j+1,numGridFiner) 	+= 	p_.ne_*gridVec_[cgInd]->u_(i,j,numGrid);
+		
+		}
+        }
+       */ 
         
 }
 
@@ -224,6 +287,7 @@ void MultiGridSolver::computeResidual(const size_t& level)
                 }
         } 
         
+         //displayGrid(level,currVCycle_, std::string("res")); 
 }
 
 // Getter function which returns first u_ of getVec_
@@ -238,18 +302,23 @@ void MultiGridSolver::mgmSolve(const size_t& level)
         //std::cout << " Level : " << level << " mgmSolve() \n ";  
         assert(level >0 && level <= numLevel_) ;    
        
-        if(level!=1)
-        {       
+       // if(level!=1)
+       // {       
                 applyPreSmoothing(level);     // Before going to coaser level lets smoothen the solution by applying RBGS Guass Seidel neu1_ times  
               
                 computeResidual(level);       // Before going to the coaser level, let us compute the error at the current level
-                                        // We can get any further coarse if level is one
+                 
+                if(level!=1)                        // We can get any further coarse if level is one
                 applyRestriction(level);      // Restrict the error term and assign it to f_
-        }                              // Its time to go to the coaser level :)
+       // }                              // Its time to go to the coaser level :)
                                            
-        if(level == 1)                   // This is the end of recursion, Compute Solution
-                applyRBGS_Iter(level);  // Apply Red Black Guass Seidel to compute the exact solution at coarsest level
-               
+        if(level == 1)
+                           // This is the end of recursion, Compute Solution
+                {      
+                        //std::cout << "Print of u before solving for exact solution\n " << std::endl; 
+                        //displayGrid(level,currVCycle_, std::string("u"));   
+                        applyRBGS_Iter(level);  // Apply Red Black Guass Seidel to compute the exact solution at coarsest level
+                }
         else
         {
                 mgmSolve(level-1);        // If we have not reached at the coarsest level keep going down
@@ -257,7 +326,7 @@ void MultiGridSolver::mgmSolve(const size_t& level)
                 applyInterpolation(level-1);      // Lets see how much we have improved the error by going to the Coaser level, Lets come back to finer level and add the effect;     
         }
         
-        if(level!=1)
+       // if(level!=1)
         applyPostSmoothing(level);      // Lets smotthen the solution a bit
         
 }
@@ -265,12 +334,13 @@ void MultiGridSolver::mgmSolve(const size_t& level)
 /*
 This function displays the grid entries err at coarse grid index cgInd
 */
-void MultiGridSolver::displayGrid(const size_t& level)
+void MultiGridSolver::displayGrid(const size_t& level, const size_t& curV_cycle, const std::string& str)
 {
         const int cgInd = numLevel_- level;         
         assert(cgInd>=0); 
-        //std::cout << "Coarse Grid Index: " << cgInd << " displayGrid() \n "; 
-        const size_t numGrid = gridVec_[cgInd]->numGrid_;       
+        std::cout << "\nDisplay of " << str <<"_ at level " << level << " during " << curV_cycle <<  " v cycles\n"; 
+        const size_t numGrid = gridVec_[cgInd]->numGrid_;
+        real temp;       
          
         std::cout << "\n\n\n";       
         for(int row=(numGrid - 1) ; row>= 0; --row)
@@ -279,13 +349,22 @@ void MultiGridSolver::displayGrid(const size_t& level)
                 for(size_t col=0; col<numGrid; ++col)
                 {
                         //cout << index << "\t"; 
-                        std::cout << gridVec_[cgInd]->u_(row,col,numGrid) << "\t";
+                        if(str.compare("res") ==0)
+                                temp = gridVec_[cgInd]->res_(row,col,numGrid);
+                        else if(str.compare("f") ==0)
+                                temp = gridVec_[cgInd]->f_(row,col,numGrid);
+                        else if(str.compare("u") ==0)
+                                temp = gridVec_[cgInd]->u_(row,col,numGrid);
+                        else 
+                                std::cout << "Please enter the correct string literal in the display function\n";
+                                 
+                        std::cout << temp << "\t\t";
                 }        
                 
                 std::cout << "\n";
         }
         
-         std::cout << "\n\n\n";   
+         std::cout << "\n\n";   
 }
 
 
@@ -324,6 +403,7 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
         size_t loopMax = numGrid-1,j;
         bool isFirstCol=true; 
      
+        ///---------------------------------- RED UPDATE -----------------------------------------------//     
       // Apply the guass seidel iteration on red interior points
       // #pragma omp parallel for schedule(static)
         for(size_t i=1; i< loopMax; ++i)
@@ -346,6 +426,8 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
         //displayGrid(level);
         
         isFirstCol = false;
+        
+        ///---------------------------------- BLACK UPDATE -----------------------------------------------//
        
         // Apply the guass seidel iteration on black interior points
        //#pragma omp parallel for schedule(static)
@@ -367,6 +449,68 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
         
         //std::cout << "Grid display after black points update\n";
         //displayGrid(level);
+        
+        //  This code is copied from sachin's project to check for the residual error
+      /*  for(size_t i=1;i<numGrid-1;++i){
+	
+		if(i & 1)
+		{
+            for(size_t j=1;j<numGrid-1;j+=2){
+
+			gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*(gridVec_[cgInd]->u_(i,j-1,numGrid)	+
+								gridVec_[cgInd]->u_(i,j+1,numGrid)	+
+								gridVec_[cgInd]->u_(i-1,j,numGrid)	+
+								gridVec_[cgInd]->u_(i+1,j,numGrid)	+
+                                (hSq * gridVec_[cgInd]->f_(i,j,numGrid)));
+		}
+	    }
+		else{
+
+			for(size_t j=2;j<numGrid-1;j+=2){
+		
+			gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*(gridVec_[cgInd]->u_(i,j-1,numGrid)	+
+								gridVec_[cgInd]->u_(i,j+1,numGrid)	+
+								gridVec_[cgInd]->u_(i-1,j,numGrid)	+
+								gridVec_[cgInd]->u_(i+1,j,numGrid)	+
+                                (hSq * gridVec_[cgInd]->f_(i,j,numGrid)));
+		}
+		}
+
+	 }
+
+///---------------------------------- BLACK UPDATE -----------------------------------------------//
+
+	for(size_t i=1;i<numGrid-1;++i){
+	
+		if(i & 1)
+        {
+	  	for(size_t j=2;j<numGrid-1;j+=2)
+			{
+			gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*(gridVec_[cgInd]->u_(i,j-1,numGrid)	+
+								gridVec_[cgInd]->u_(i,j+1,numGrid)	+
+								gridVec_[cgInd]->u_(i-1,j,numGrid)	+
+								gridVec_[cgInd]->u_(i+1,j,numGrid)	+
+								(hSq*gridVec_[cgInd]->f_(i,j,numGrid)));
+			}
+	    	}
+		else
+		{
+
+			for(size_t j=1;j<numGrid-1;j+=2)
+			{
+		
+			gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*(gridVec_[cgInd]->u_(i,j-1,numGrid)	+
+								gridVec_[cgInd]->u_(i,j+1,numGrid)	+
+								gridVec_[cgInd]->u_(i-1,j,numGrid)	+
+								gridVec_[cgInd]->u_(i+1,j,numGrid)	+
+								(hSq*gridVec_[cgInd]->f_(i,j,numGrid)));
+			}
+		}
+
+	 }*/
+	 
+
+	 
        
         
 }
