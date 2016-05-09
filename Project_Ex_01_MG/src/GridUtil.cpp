@@ -133,6 +133,7 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
 void GridUtil::measureError(const TwoDimArr & a)
 {
 	real x,y,act,comp,diff,error = 0.0;
+	const size_t numInnerPoints = (numGrid_-1)*(numGrid_ - 1);
 
 	 for(size_t i=0; i<numGrid_ ; ++i)
         {
@@ -146,9 +147,9 @@ void GridUtil::measureError(const TwoDimArr & a)
 			error += diff * diff;       
 		}        
         }
-	error = std::sqrt(error);
+	error = std::sqrt(error/numInnerPoints);
 	
-	//std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
+	std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
 }
 		
 
