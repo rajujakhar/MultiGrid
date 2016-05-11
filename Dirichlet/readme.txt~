@@ -1,0 +1,7 @@
+
+Dirichlet Boundary conditions 
+
+compile : make
+
+run : ./mgsolve <number of levels> <number of v cycles> 
+      example: ./mgsolve 5 10  

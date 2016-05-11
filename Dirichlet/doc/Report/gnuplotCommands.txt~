@@ -1,0 +1,8 @@
+gnuplot> set dgrid3d 33,33
+gnuplot> set hidden3d
+gnuplot> set xlabel("x")
+gnuplot> set ylabel("y")
+gnuplot> set zlabel("u")
+gnuplot> set title("Computed Solution of Laplace Equation using MultiGrid Solver on 33*33 grid points")
+gnuplot> splot "solution.txt" u 1:2:3 with lines palette
+
