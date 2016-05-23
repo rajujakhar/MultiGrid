@@ -110,7 +110,7 @@ void MultiGridSolver::computeSolution()
 
 	        
 //        }while(e < errLimit_);
-        }
+         }
 
         
 }
@@ -159,6 +159,7 @@ real MultiGridSolver::calResNorm()
         const real hSqInv = 1.0/(gridVec_[cgInd]->h_ * gridVec_[cgInd]->h_);
         const real numInnerPoints = (numGrid-2)*(numGrid-2);
         real sum=0.0, temp, l2Norm=0.;
+        const size_t midValue = 0.5*(numGrid -1);
         
       
        // std::cout << "REsidual display: " ;
@@ -168,6 +169,7 @@ real MultiGridSolver::calResNorm()
         {
                 for(size_t j=1; j<numGrid-1; ++j)
                 {       
+                        if ((i != midValue) || (j<midValue)) 
                          temp = gridVec_[cgInd]->f_(i,j,numGrid) - (hSqInv*(s_.s_*gridVec_[cgInd]->u_(i-1,j,numGrid) + s_.w_*gridVec_[cgInd]->u_(i,j-1,numGrid)  + 
                         s_.c_*gridVec_[cgInd]->u_(i,j,numGrid) + s_.e_*gridVec_[cgInd]->u_(i,j+1,numGrid) + s_.n_*gridVec_[cgInd]->u_(i+1,j,numGrid)) );   
                          
@@ -267,6 +269,7 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
         //Get the number of grid points in current and finer grid
         size_t numGrid = gridVec_[cgInd]->numGrid_;
         size_t numGridFiner = gridVec_[cgInd-1]->numGrid_;
+        size_t midValue = 0.5*(numGrid-1);
         
         //std::cout << "u before interpolation\n";
         //displayGrid(level+1,currVCycle_, std::string("u")); 
@@ -274,21 +277,25 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
         for(size_t i=0; i<numGrid-1; ++i)
         {
                 for(size_t j=0; j<numGrid-1; ++j)
-                {       
-                        if(i!=0)      // This check insures that we are not updating y=0 line points
-                        {
-                                if(j!=0)
-                                gridVec_[cgInd-1]->u_(2*i,2*j,numGridFiner)     +=  (p_.c_*gridVec_[cgInd]->u_(i,j,numGrid));
-                                
-                                gridVec_[cgInd-1]->u_(2*i,2*j+1,numGridFiner)   +=  (p_.e_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) ));
-                                
-                        }
+                {      
+                        
+                        if ((i != midValue) || (j<midValue))  // Skip the middle slit
+                        {   
+                                if(i!=0)      // This check insures that we are not updating y=0 line points
+                                {
+                                        if(j!=0)
+                                        gridVec_[cgInd-1]->u_(2*i,2*j,numGridFiner)     +=  (p_.c_*gridVec_[cgInd]->u_(i,j,numGrid));  // CENTER
+                                        
+                                        gridVec_[cgInd-1]->u_(2*i,2*j+1,numGridFiner)   +=  (p_.e_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) )); // RIGHT
+                                        
+                                }
+                        }        
                         
                         if(j!=0)       // This check insures that we are not updating x=0 line points 
-                        gridVec_[cgInd-1]->u_(2*i+1,2*j,numGridFiner)   +=  (p_.n_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ));
+                        gridVec_[cgInd-1]->u_(2*i+1,2*j,numGridFiner)   +=  (p_.n_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ));  // UP
                                 
                         gridVec_[cgInd-1]->u_(2*i+1,2*j+1,numGridFiner) +=  (p_.ne_*( gridVec_[cgInd]->u_(i,j,numGrid) +  gridVec_[cgInd]->u_(i,j+1,numGrid) + 
-                                                                                       gridVec_[cgInd]->u_(i+1,j,numGrid) + gridVec_[cgInd]->u_(i+1,j+1,numGrid))  ); 
+                                                                                       gridVec_[cgInd]->u_(i+1,j,numGrid) + gridVec_[cgInd]->u_(i+1,j+1,numGrid))  );  // CORNER
                                                                                    
                 }
         }
@@ -343,6 +350,7 @@ void MultiGridSolver::mgmSolve(const size_t& level)
         if(level == 1)
                                                   // This is the end of recursion, Compute Solution
                 {      
+                        std::cout << "Exact solution\n";
                         applyRBGS_Iter(level);    // Apply Red Black Guass Seidel to compute the exact solution at coarsest level
                 }
         else
@@ -383,8 +391,8 @@ void MultiGridSolver::displayGrid(const size_t& level, const size_t& curV_cycle,
                                 temp = gridVec_[cgInd]->u_(row,col,numGrid);
                         else 
                                 std::cout << "Please enter the correct string literal in the display function\n";
-                                 
-                        std::cout << temp << "\t\t";
+                        std::cout.width(5);         
+                        std::cout << std::left << temp << "\t\t";
                 }        
                 
                 std::cout << "\n";
@@ -403,6 +411,7 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
         size_t numGrid = gridVec_[cgInd]->numGrid_;
         const real hSq = gridVec_[cgInd]->h_*gridVec_[cgInd]->h_;
         size_t loopMax = numGrid-1,j;
+        size_t midValue = 0.5*loopMax;
         //bool isFirstCol=true;
 
         ///---------------------------------- RED UPDATE -----------------------------------------------//
@@ -417,9 +426,8 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
 
                 while(j < loopMax)
                         {
-                                //if(isPreSmoothing && level==numLevel_)
-                                //std::cout << "i= "  << i  << " j= " << j << "  tid:  " <<omp_get_thread_num()  << std::endl;
-
+                                // Leave the middle slit
+                                if ((i != midValue) || (j<midValue))  
                                 gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*( hSq*(gridVec_[cgInd]->f_(i,j,numGrid)) +
                                 gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;
 
@@ -449,6 +457,8 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
 
                 while(j < loopMax)
                         {
+                                // Leave the middle slit
+                                if ((i != midValue) || (j<midValue)) 
                                 gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*( hSq*(gridVec_[cgInd]->f_(i,j,numGrid)) +
                                 gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;
 
@@ -457,6 +467,6 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
 
            //isFirstCol = !isFirstCol;
         }
-
+        //displayGrid(level,currVCycle_, std::string("u")); 
 
 }

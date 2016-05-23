@@ -28,7 +28,7 @@ int main(int argc, char **argv)
                 
                 //std::cout << "Solution computed after MultiGrid Solver computation: \n";
 //            gridUtil.displayGrid(m.getSolVec());
-                //gridUtil.writeSol(m.getSolVec());
+                gridUtil.writeSol(m.getSolVec());
                 m.measureError(m.getSolVec());
         }
 

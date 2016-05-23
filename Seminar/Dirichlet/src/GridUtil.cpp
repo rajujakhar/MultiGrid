@@ -180,7 +180,7 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
         std::ofstream f_out("solution.txt");
         std::ofstream f_act("actualSolution.txt");
         std::ofstream f_err("errSolution.txt");
-        real x,y,comp,act;
+        real x, y, comp, act, phi, r;
         size_t midValue;
         
         for(size_t i=0; i<numGrid_ ; ++i)
@@ -191,16 +191,17 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
                         y = -1 + i*h_;
                         comp = arr.data_[i*numGrid_+j];
                         //act = sin(M_PI*x)*sinh(M_PI*y);
-                        real r = sqrt(x*x + y*y);
-                        real phi = atan(y/x);
+                        r = sqrt(x*x + y*y);
+                        if(x == 0 && y ==0)
+                                phi=0;
+                        else         
+                                phi = atan(y/x);
                         midValue = (numGrid_-1)*0.5;
                         if (j<midValue)
                                 phi+=M_PI;
                         
                         if(i<midValue && j>=midValue && j<numGrid_)
                                 phi+= 2*M_PI;                  
-                        
-                        
                         
                         
                         act = (std::sqrt(r)) * sin(0.5 * phi);
