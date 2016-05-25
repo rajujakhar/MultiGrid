@@ -39,4 +39,4 @@ clean:
 	@$(RM) -rf ./src/*.o ./test/*.o *.o *.txt $(EXEC) 
 
 run:
-	 ./$(EXEC) 3
+	 ./$(EXEC) 3 5

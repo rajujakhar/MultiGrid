@@ -60,7 +60,7 @@ numLevel_(numLevel), numVcycle_(numVcycle),neu1_(1), neu2_(1),currVCycle_(1),err
 void MultiGridSolver::computeSolution()
 {
         real resNormNew, resNormOld=0, convRate;
-//        real e = 0;
+        real e = 0.;
 
         
         if(numLevel_ ==1)
@@ -71,7 +71,7 @@ void MultiGridSolver::computeSolution()
         
         for(size_t count=0; count< numVcycle_; ++count)
 
-//    do
+// //   do
        {
 //            std::cout<<" \n";
 //            std::cout<< "Error at the entry of loop is : " << e << std::endl;
@@ -93,12 +93,13 @@ void MultiGridSolver::computeSolution()
 
 	        
 	        // Increment the curr v cycle
-               currVCycle_++;
+              
 //            std::cout<< "V cycle counter increased to " << currVCycle_  << std::endl;
 
 //            std::cout<< "******************************* " << std::endl;
 
-//            e = measureError(getSolVec()) ;
+              e = GridUtil::measureError(gridVec_[0]->u_, gridVec_[0]->numGrid_, gridVec_[0]->h_);
+              std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
 //            std::cout<< "Error at the exit of loop is : " << e << std::endl;
 
 //            std::cout<< "############################### " << std::endl;
@@ -107,6 +108,8 @@ void MultiGridSolver::computeSolution()
 	        // Set the u_ vector to zeros at each level other than finest level after each V Cycles -> At these levels u_'s represents error  
 	        for(size_t i=1; i< numLevel_; ++i)
 	        std::fill(gridVec_[i]->u_.data_.begin(), gridVec_[i]->u_.data_.end(), 0.0 );
+	        
+	         currVCycle_++;
 
 	        
 //        }while(e < errLimit_);
@@ -170,11 +173,12 @@ real MultiGridSolver::calResNorm()
                 for(size_t j=1; j<numGrid-1; ++j)
                 {       
                         if ((i != midValue) || (j<midValue)) 
-                         temp = gridVec_[cgInd]->f_(i,j,numGrid) - (hSqInv*(s_.s_*gridVec_[cgInd]->u_(i-1,j,numGrid) + s_.w_*gridVec_[cgInd]->u_(i,j-1,numGrid)  + 
+                         {temp = gridVec_[cgInd]->f_(i,j,numGrid) - (hSqInv*(s_.s_*gridVec_[cgInd]->u_(i-1,j,numGrid) + s_.w_*gridVec_[cgInd]->u_(i,j-1,numGrid)  + 
                         s_.c_*gridVec_[cgInd]->u_(i,j,numGrid) + s_.e_*gridVec_[cgInd]->u_(i,j+1,numGrid) + s_.n_*gridVec_[cgInd]->u_(i+1,j,numGrid)) );   
                          
                         // temp = gridVec_[cgInd]->res_(i,j,numGrid);
                          sum += (temp*temp);
+                         }
                 }
         }
         

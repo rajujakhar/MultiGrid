@@ -1,5 +1,4 @@
 #include "GridUtil.h"
-#include "Precision.h"
 
 TwoDimArr& GridUtil::getVec()
 {
@@ -181,7 +180,7 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
         std::ofstream f_act("actualSolution.txt");
         std::ofstream f_err("errSolution.txt");
         real x, y, comp, act, phi, r;
-        size_t midValue;
+        size_t midValue = (numGrid_-1)*0.5;
         
         for(size_t i=0; i<numGrid_ ; ++i)
         {
@@ -196,13 +195,12 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
                                 phi=0;
                         else         
                                 phi = atan(y/x);
-                        midValue = (numGrid_-1)*0.5;
+                        
                         if (j<midValue)
                                 phi+=M_PI;
                         
-                        if(i<midValue && j>=midValue && j<numGrid_)
+                        if(i<midValue && j>=midValue)
                                 phi+= 2*M_PI;                  
-                        
                         
                         act = (std::sqrt(r)) * sin(0.5 * phi);
                         f_out << x << "\t" << y << "\t" << comp << std::endl;
@@ -220,33 +218,49 @@ void GridUtil::writeSol(const TwoDimArr& arr) const
 }
 
 // This function writes the error after the Multi Grid solver has been completed
-//static void GridUtil::measureError(const TwoDimArr & a)
-//{
-//    real x,y,act,comp,diff,error = 0.0;
-//        size_t numInnerPoints = (numGrid_-2)*(numGrid_-2);
-//     for(size_t i=0; i<numGrid_ ; ++i)
-//        {
-//                for(size_t j=0; j<numGrid_ ;++j)
-//                {
-//                        x = -1 + j*h_ ;
-//                        y = -1 + i*h_;
-//                        comp = a.data_[i*numGrid_+j];
-//                        real r = sqrt(x*x + y*y);
-//                        real phi = atan(y/x);
-//                        act = (std::sqrt(r)) * sin(0.5 * phi);
+real GridUtil::measureError(const TwoDimArr & a, const size_t& numGrid, const real& h )
+{
+        real x,y,act,comp,diff,error = 0.0, phi, r;
+        size_t numInnerPoints = (numGrid)*(numGrid);
+        size_t midValue = (numGrid-1)*0.5;
+        
+        for(size_t i=0; i<numGrid ; ++i)
+        {
+                for(size_t j=0; j<numGrid ;++j)
+                {
+                        x = -1. + j*h ;
+                        y = -1. + i*h;
+                        comp = a.data_[i*numGrid+j];
+                        r = sqrt(x*x + y*y);
+                        
+                        if(x==0. && y==0.)
+                                phi=0.;
+                        else         
+                                phi = atan(y/x);
+                                
+                        if (j<midValue)
+                                phi+=M_PI;
+                        
+                        if(i<midValue && j>=midValue)
+                                phi+= 2*M_PI;   
+                                        
+                        act = (std::sqrt(r)) * sin(0.5 * phi);
 ////                        act = sin(M_PI*x)*sinh(M_PI*y);
-//                    diff = fabs(comp - act);
-//            error += diff * diff;
-//        }
-//        }
-//    error = std::sqrt(error/numInnerPoints);
+                    diff = fabs(comp - act);
+                    error += diff * diff;
+                }
+        
+        }
+    //std::cout <<  "Error is: " << error << std::endl;
+    error = std::sqrt(error/numInnerPoints);
 	
-//    std::ofstream err_out;
-//    err_out.open("errPlotvsGridSize.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-//    err_out << h_ << "\t" << error << std::endl;
-//    err_out.close();
-//    //std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
-//}
+    std::ofstream err_out;
+    err_out.open("errPlotvsGridSize.txt", std::fstream::in | std::fstream::out | std::fstream::app);
+    err_out << h << "\t" << error << std::endl;
+    err_out.close();
+    return error;
+    //std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
+}
 		
 
 

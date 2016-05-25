@@ -15,7 +15,7 @@ OBJS = ./test/$(TARGET1).o ./src/$(TARGET2).o ./src/$(TARGET3).o ./src/$(TARGET4
 EXEC = mgsolve
 
 $(EXEC): $(OBJS)
-	$(CXX) $(CXXFLAGS) OBJS -o $(EXEC)  
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(EXEC)  
 
 $(TARGET1).o: ./test/$(TARGET1).cpp
 	$(CXX) -c $(CXXFLAGS)  ./test/$(TARGET1).cpp  -o ./test/$(TARGET1).o
@@ -39,4 +39,4 @@ clean:
 	@$(RM) -rf ./src/*.o ./test/*.o *.o *.txt $(EXEC) 
 
 run:
-	 ./$(EXEC) 3
+	 ./$(EXEC) 3 5
