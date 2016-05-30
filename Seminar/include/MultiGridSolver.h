@@ -40,7 +40,7 @@ public:
         ~MultiGridSolver();
         void computeSolution();
         TwoDimArr& getSolVec();
-        size_t measureError(const TwoDimArr & a);
+        //size_t measureError(const TwoDimArr & a);
         //static MultiGridSolver createInstance(const size_t &, const size_t &, const TwoDimArr& );
         //static size_t numObjects;               // This variable is used to restict the user to create only one instance of MultiGridSolver      
         

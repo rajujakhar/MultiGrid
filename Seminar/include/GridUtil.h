@@ -19,16 +19,22 @@ private:
         size_t numGrid_;
         real h_;
         TwoDimArr u_;
-public: 
         
+public: 
         GridUtil(const size_t &level);
         ~GridUtil();
         void setBCs();
         void displayGrid(const TwoDimArr &) const;
         void displayGrid() const;
         TwoDimArr& getVec();
-        void writeSol(const TwoDimArr &) const;
+        void writeFinalSol(const TwoDimArr &) const;
+        void writeInitSol() const;
         static real measureError(const TwoDimArr&, const size_t&, const real& );
+        static real measureError(const TwoDimArr&, const size_t& );
+        static real calR(const real&, const real&);
+        static real cal_phi(const real&, const real&); 
+        static real g(const real&, const real&);
+        static real getMap(const size_t&, const size_t&, const size_t&);
        
 };
 

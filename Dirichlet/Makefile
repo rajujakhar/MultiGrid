@@ -1,6 +1,6 @@
 CXX = g++
 #CXXFLAGS = -std=c++11 -Wall -Wextra -Wshadow -Werror  -Winline -O3
-CXXFLAGS = -O3 -Wall -Winline -Wshadow -std=c++11
+CXXFLAGS = -g -pg -O3 -Wall -Winline -Wshadow -std=c++11
 
 
 TARGET1 = main

@@ -1,13 +1,11 @@
 #include "MultiGridSolver.h"
 #include "GridUtil.h"
-#include <iostream>
 
 
 //Initialise the counter of global objects by 0;
 //size_t MultiGridSolver::numObjects=0;
 //MultiGridSolver::MultiGridSolver(const size_t &numLevel, const TwoDimArr &u ):
-MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle, const TwoDimArr &u ):
-numLevel_(numLevel), numVcycle_(numVcycle),neu1_(1), neu2_(1),currVCycle_(1),errLimit_(0.0000918)
+MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle, const TwoDimArr &u ): numLevel_(numLevel), numVcycle_(numVcycle) , neu1_(1), neu2_(1),currVCycle_(1),errLimit_(0.0000918)
     //    numLevel_(numLevel),neu1_(1), neu2_(1),currVCycle_(1),errLimit_(0.0000918)
 {
         
@@ -31,7 +29,7 @@ numLevel_(numLevel), numVcycle_(numVcycle),neu1_(1), neu2_(1),currVCycle_(1),err
        // Initialise the stencils
        this->r_.setStencilParams(0.25, 0.125, 0.125, 0.0625);   // Weightage is 1/4, 1/8, 1/8, 1/16 resp for restriction matrix
        this->s_.setStencilParams(4, -1, -1, 0);
-       this->p_.setStencilParams(1, 0.5, 0.5, 0.25);
+       this->p_.setStencilParams(1, 0.5, 0.5, 0.25);            // Prolongation stencil
        
        //std::cout << " MultiGridSolver constructed for " << numLevel_ << "  levels and " << numVcycle_ << " v-cycles \n";  
 }
@@ -60,7 +58,7 @@ numLevel_(numLevel), numVcycle_(numVcycle),neu1_(1), neu2_(1),currVCycle_(1),err
 void MultiGridSolver::computeSolution()
 {
         real resNormNew, resNormOld=0, convRate;
-        real e = 0.;
+        //real e = 0.;
 
         
         if(numLevel_ ==1)
@@ -70,26 +68,24 @@ void MultiGridSolver::computeSolution()
         }        
         
         for(size_t count=0; count< numVcycle_; ++count)
-
-// //   do
-       {
+        {
 //            std::cout<<" \n";
 //            std::cout<< "Error at the entry of loop is : " << e << std::endl;
 
-            mgmSolve(numLevel_);
+            mgmSolve(numLevel_);    //  1 v cycle
 	     
-            resNormNew = calResNorm();
-            std::cout << "Discrete L2 residum norm after " <<  currVCycle_ << " V-Cycle is:  " << resNormNew << std::endl;
+            /*resNormNew = calResNorm();
+            //std::cout << "Discrete L2 residum norm after " <<  currVCycle_ << " V-Cycle is:  " << resNormNew << std::endl;
 //            std::cout<< "Error Limit is : " << errLimit_ << std::endl;
 	       
             if(currVCycle_ !=1)
 	        {
 	                convRate = resNormNew/resNormOld;
-                    std::cout << "Convergence rate after " << currVCycle_ << " V-Cycle  is:  " << convRate << std::endl;
+                        //std::cout << "Convergence rate after " << currVCycle_ << " V-Cycle  is:  " << convRate << std::endl;
 	        }
 
 	        
-	        resNormOld = resNormNew;
+	        resNormOld = resNormNew;*/
 
 	        
 	        // Increment the curr v cycle
@@ -98,8 +94,8 @@ void MultiGridSolver::computeSolution()
 
 //            std::cout<< "******************************* " << std::endl;
 
-              e = GridUtil::measureError(gridVec_[0]->u_, gridVec_[0]->numGrid_, gridVec_[0]->h_);
-              std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
+              //e = GridUtil::measureError(gridVec_[0]->u_, gridVec_[0]->numGrid_, gridVec_[0]->h_);
+              //std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
 //            std::cout<< "Error at the exit of loop is : " << e << std::endl;
 
 //            std::cout<< "############################### " << std::endl;
@@ -109,16 +105,16 @@ void MultiGridSolver::computeSolution()
 	        for(size_t i=1; i< numLevel_; ++i)
 	        std::fill(gridVec_[i]->u_.data_.begin(), gridVec_[i]->u_.data_.end(), 0.0 );
 	        
-	         currVCycle_++;
+	        currVCycle_++;
 
 	        
-//        }while(e < errLimit_);
-         }
+        }
+         
 
         
 }
 
-size_t MultiGridSolver::measureError(const TwoDimArr & a)
+/*size_t MultiGridSolver::measureError(const TwoDimArr & a)
 {
     real x,y,act,comp,diff,error = 0.0;
         size_t numInnerPoints = (numGrid_-2)*(numGrid_-2);
@@ -151,7 +147,8 @@ size_t MultiGridSolver::measureError(const TwoDimArr & a)
     err_out.close();
     std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
     return error;
-}
+}*/
+
 
 // This function is written to compute norm of the residual after each V Cycle 
 real MultiGridSolver::calResNorm() 
@@ -172,7 +169,7 @@ real MultiGridSolver::calResNorm()
         {
                 for(size_t j=1; j<numGrid-1; ++j)
                 {       
-                        if ((i != midValue) || (j<midValue)) 
+                        if ((i != midValue) || (j<midValue))  // Skip the middle slit
                          {temp = gridVec_[cgInd]->f_(i,j,numGrid) - (hSqInv*(s_.s_*gridVec_[cgInd]->u_(i-1,j,numGrid) + s_.w_*gridVec_[cgInd]->u_(i,j-1,numGrid)  + 
                         s_.c_*gridVec_[cgInd]->u_(i,j,numGrid) + s_.e_*gridVec_[cgInd]->u_(i,j+1,numGrid) + s_.n_*gridVec_[cgInd]->u_(i+1,j,numGrid)) );   
                          
@@ -195,10 +192,11 @@ MultiGridSolver::~MultiGridSolver()
 {
         //Deallocate the memory allocated on heap
         //std::cout << " MultiGrid Destructor\n ";
-        for(size_t i=0 ; i< numLevel_; ++i)
+        /*for(size_t i=0 ; i< numLevel_; ++i)
                 {
                 delete gridVec_[i];
-                } 
+                }
+                */ 
 }
 
 // This function smoothens the solution by applying RBGS Guass Seidel neu1_ times
@@ -354,7 +352,7 @@ void MultiGridSolver::mgmSolve(const size_t& level)
         if(level == 1)
                                                   // This is the end of recursion, Compute Solution
                 {      
-                        std::cout << "Exact solution\n";
+                        //std::cout << "Exact solution\n";
                         applyRBGS_Iter(level);    // Apply Red Black Guass Seidel to compute the exact solution at coarsest level
                 }
         else
