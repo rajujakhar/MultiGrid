@@ -56,7 +56,9 @@ Grid::Grid(const size_t &level)
         }
         
         assert(u_.data_.size() == (numGrid_*numGrid_));
-      
+        this->f_.data_.resize(numTotPoints,0.0);
+        this->res_.data_.resize(numTotPoints,0.0);
+        this->u_.data_.resize(numTotPoints);
          
         //std::cout << "Level " << level << " grid constructed with total grid points " << numTotPoints << std::endl;  
 }

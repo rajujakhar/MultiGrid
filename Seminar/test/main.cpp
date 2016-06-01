@@ -8,7 +8,7 @@ int main(int argc, char **argv)
         assert(argc == 2);
 	
 	int numLevel = std::stoi(argv[1]);
-        size_t numVcycle= 18;
+        size_t numVcycle= 16;
 	
 	GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();

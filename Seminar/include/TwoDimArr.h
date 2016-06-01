@@ -22,6 +22,6 @@ public:
         
         //TwoDimArr(const size_t &length, const real);
         std::vector<real> data_; 
-        
+                
 };
 #endif

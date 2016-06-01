@@ -58,7 +58,7 @@ MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle
 void MultiGridSolver::computeSolution()
 {
         real resNormNew, resNormOld=0, convRate;
-        //real e = 0.;
+        real e = 0.;
 
         
         if(numLevel_ ==1)
@@ -75,17 +75,17 @@ void MultiGridSolver::computeSolution()
             mgmSolve(numLevel_);    //  1 v cycle
 	     
             /*resNormNew = calResNorm();
-            //std::cout << "Discrete L2 residum norm after " <<  currVCycle_ << " V-Cycle is:  " << resNormNew << std::endl;
+            std::cout << "Discrete L2 residum norm after " <<  currVCycle_ << " V-Cycle is:  " << resNormNew << std::endl;
 //            std::cout<< "Error Limit is : " << errLimit_ << std::endl;
 	       
             if(currVCycle_ !=1)
 	        {
 	                convRate = resNormNew/resNormOld;
-                        //std::cout << "Convergence rate after " << currVCycle_ << " V-Cycle  is:  " << convRate << std::endl;
+                        std::cout << "Convergence rate after " << currVCycle_ << " V-Cycle  is:  " << convRate << std::endl;
 	        }
 
 	        
-	        resNormOld = resNormNew;*/
+	        resNormOld = resNormNew;
 
 	        
 	        // Increment the curr v cycle
@@ -94,11 +94,11 @@ void MultiGridSolver::computeSolution()
 
 //            std::cout<< "******************************* " << std::endl;
 
-              //e = GridUtil::measureError(gridVec_[0]->u_, gridVec_[0]->numGrid_, gridVec_[0]->h_);
-              //std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
+              e = GridUtil::measureError(gridVec_[0]->u_, gridVec_[0]->numGrid_, gridVec_[0]->h_);
+              std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
 //            std::cout<< "Error at the exit of loop is : " << e << std::endl;
 
-//            std::cout<< "############################### " << std::endl;
+//            std::cout<< "############################### " << std::endl;*/
 
 
 	        // Set the u_ vector to zeros at each level other than finest level after each V Cycles -> At these levels u_'s represents error  
@@ -165,6 +165,7 @@ real MultiGridSolver::calResNorm()
        // std::cout << "REsidual display: " ;
         //displayGrid(numLevel_);
         
+        #pragma omp parallel for schedule(static)
         for(size_t i=1; i<numGrid-1; ++i)
         {
                 for(size_t j=1; j<numGrid-1; ++j)
@@ -236,7 +237,7 @@ void MultiGridSolver::applyRestriction(const size_t& level)
         const size_t numGrid = gridVec_[cgInd]->numGrid_;
         const size_t numGridCoarser = gridVec_[cgInd+1]->numGrid_;
          
-        
+        #pragma omp parallel for schedule(static)
         for(size_t i=2; i<numGrid-2; i+=2)     
                 {
                         for(size_t j=2; j<numGrid-2; j+=2)
@@ -260,6 +261,7 @@ void MultiGridSolver::applyRestriction(const size_t& level)
 }
 
 // The following function contanis logic in which error information is passed from current grid to finer grid by pushing information from 8 neighbours.
+
 void MultiGridSolver::applyInterpolation(const size_t& level)
 {
         //std::cout << "Level : " << level << " applyInterpolation() \n "; 
@@ -276,6 +278,7 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
         //std::cout << "u before interpolation\n";
         //displayGrid(level+1,currVCycle_, std::string("u")); 
         
+        #pragma omp parallel for schedule(static)
         for(size_t i=0; i<numGrid-1; ++i)
         {
                 for(size_t j=0; j<numGrid-1; ++j)
@@ -307,6 +310,7 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
 }
 
 // This function computes the residual on current grid
+
 void MultiGridSolver::computeResidual(const size_t& level)
 {
         const int cgInd = numLevel_- level;         
@@ -315,6 +319,7 @@ void MultiGridSolver::computeResidual(const size_t& level)
         const size_t numGrid = gridVec_[cgInd]->numGrid_;    
         const real hSqInv = 1.0/(gridVec_[cgInd]->h_ * gridVec_[cgInd]->h_);
         
+        #pragma omp parallel for schedule(static)
         for(size_t i=1; i<numGrid-1; ++i)
         {
                 for(size_t j=1; j<numGrid-1; ++j)
@@ -418,7 +423,7 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
 
         ///---------------------------------- RED UPDATE -----------------------------------------------//
       // Apply the guass seidel iteration on red interior points
-        #pragma omp parallel for private (j)//schedule(dynamic)
+        #pragma omp parallel for private (j) schedule(static)
         for(size_t i=1; i< loopMax; ++i)
         {
 
@@ -434,8 +439,6 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
                                 gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;
 
                                 j+= 2;
-
-
                         }
 
            //isFirstCol = !isFirstCol;
@@ -451,7 +454,7 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
         ///---------------------------------- BLACK UPDATE -----------------------------------------------//
 
         // Apply the guass seidel iteration on black interior points
-        #pragma omp parallel for private (j)//schedule(dynamic)
+        #pragma omp parallel for private (j) schedule(static)
         for(size_t i=1; i< loopMax; ++i)
         {
              // this check determines wheather to start from 1st OR 2nd column
