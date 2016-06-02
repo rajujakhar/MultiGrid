@@ -1,6 +1,6 @@
 CXX = g++
 #CXXFLAGS = -std=c++11 -Wall -Wextra -Wshadow -Werror  -Winline -O3
-CXXFLAGS =  -O3  -fopenmp  -Wshadow -std=c++11 -I ./include/ #-DNDEBUG
+CXXFLAGS =  -O3 -fopenmp  -Winline -Wshadow -std=c++11 -I ./include/ #-DNDEBUG
 #CXXFLAGS =  -O3  -Winline -Wshadow -std=c++11 -I ./include/
 
 

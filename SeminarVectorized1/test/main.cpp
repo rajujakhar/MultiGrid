@@ -11,14 +11,18 @@ int main(int argc, char **argv)
 	
 	int numLevel = std::stoi(argv[1]);
         size_t numVcycle= 16;
+        
+        if(argc ==3)
+        numVcycle = std::stoi(argv[2]);
 	
 	GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();
+    gridUtil.displayRedBlackGrid();
 	//gridUtil.writeInitSol();
 	//gridUtil.displayGrid();
 	
 	// Creates a object of MultiGridSolver class and compute the solution using Multigrid solver
-	try
+    /*try
 	{
                 MultiGridSolver m= MultiGridSolver(numLevel,numVcycle,gridUtil.getVec());
                 //MultiGridSolver m= MultiGridSolver(numLevel,gridUtil.getVec());
@@ -39,7 +43,6 @@ int main(int argc, char **argv)
                 std::cout << "Wall clock time of MG execution: " << time << " ms" << std::endl;
                            
                 //gridUtil.writeFinalSol(m.getSolVec());
-                //GridUtil::measureError(m.getSolVec(), numLevel);
                 real err = GridUtil::measureError(m.getSolVec(), numLevel);
                 std::cout << "Error after "<< numVcycle << " is: " << err << std::endl;
         }
@@ -47,7 +50,7 @@ int main(int argc, char **argv)
         catch (...)
         {
                 std::cout << "Some Exception occured " << "\n";
-        }
+        }*/
        
         
 }

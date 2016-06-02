@@ -24,6 +24,9 @@ private:
         Stencil p_;                     // p stands for prolongation
         
         void applyRBGS_Iter(const size_t&);
+        void applyRedSweep(const size_t&, const int& );
+        void applyBlackSweep(const size_t&, const int& );
+        void applyGuassSeidelSweep();
         void applyRestriction(const size_t&);
         void applyInterpolation(const size_t&);
         void applyPreSmoothing(const size_t&);

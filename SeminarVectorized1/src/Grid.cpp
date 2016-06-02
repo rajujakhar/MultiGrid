@@ -1,4 +1,4 @@
-#include "Grid.h"
+/*#include "Grid.h"
 
 
 Grid::Grid(const size_t &level) 
@@ -13,9 +13,9 @@ Grid::Grid(const size_t &level)
     
 }
 
+*/
 
 
-/*
 #include "Grid.h"
 
 
@@ -58,7 +58,7 @@ Grid::Grid(const size_t &level)
          
         //std::cout << "Level " << level << " grid constructed with total grid points " << numTotPoints << std::endl;  
 }
-*/
+
 
 
             

@@ -57,8 +57,8 @@ MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle
 // Compute The solution by applying numVcycle_  
 void MultiGridSolver::computeSolution()
 {
-        //real resNormNew, resNormOld=0, convRate;
-        //real e = 0.;
+        real resNormNew, resNormOld=0, convRate;
+        real e = 0.;
         real time;
         struct timeval t0, t;
         
@@ -73,7 +73,7 @@ void MultiGridSolver::computeSolution()
 //            std::cout<<" \n";
 //            std::cout<< "Error at the entry of loop is : " << e << std::endl;
             
-               // gettimeofday(&t0, NULL);   
+                gettimeofday(&t0, NULL);   
                 mgmSolve(numLevel_);    //  1 v cycle
 	    
 	     
@@ -98,67 +98,30 @@ void MultiGridSolver::computeSolution()
 //            std::cout<< "******************************* " << std::endl;
 
               e = GridUtil::measureError(gridVec_[0]->u_, gridVec_[0]->numGrid_, gridVec_[0]->h_);
-              std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
+              std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; */
 //            std::cout<< "Error at the exit of loop is : " << e << std::endl;
 
-//            std::cout<< "############################### " << std::endl;*/
+//            std::cout<< "############################### " << std::endl;
 
 
 	        // Set the u_ vector to zeros at each level other than finest level after each V Cycles -> At these levels u_'s represents error 
                 for(size_t i=1; i< numLevel_; ++i)
-	        std::fill(gridVec_[i]->u_.data_.begin(), gridVec_[i]->u_.data_.end(), 0.0 );
+	        std::fill(gridVec_[i]->u_.data_.begin(), gridVec_[i]->u_.data_.end(), 0.0);
 	        
 	   
-	        //gettimeofday(&t, NULL);
+	        gettimeofday(&t, NULL);
 	        
-	        //time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	        time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
 	        //std::cout << "Wall clock time of MGMSolve() in " << currVCycle_  << " v-cycle is " << time << " seconds\n"; 
 	        
 	        currVCycle_++;
           }
          
-
         
 }
 
-/*size_t MultiGridSolver::measureError(const TwoDimArr & a)
-{
-    real x,y,act,comp,diff,error = 0.0;
-        size_t numInnerPoints = (numGrid_-2)*(numGrid_-2);
-        std::cout<<"numGrid_ is : " << numGrid_ << std::endl;
-     for(size_t i=0; i<numGrid_ ; ++i)
-        {
-                for(size_t j=0; j<numGrid_ ;++j)
-                {
-                        x = -1 + j*h_ ;
-                        y = -1 + i*h_;
-                        comp = a.data_[i*numGrid_+j];
-                        real r = sqrt(x*x + y*y);
-                        real phi = atan(y/x);
-                        act = (std::sqrt(r)) * sin(0.5 * phi);
-//                        act = sin(M_PI*x)*sinh(M_PI*y);
-//                        std::cout<< "X : "<< x << std::endl;
-//                        std::cout<< "Y : "<< y << std::endl;
-//                        std::cout<< act << " ---> " << comp <<std::endl ;
-//                        std::cout<< "\n"<< std::endl;
-
-                        diff = fabs(comp - act);
-            error += diff * diff;
-                }
-        }
-    error = std::sqrt(error/numInnerPoints);
-
-    std::ofstream err_out;
-    err_out.open("errPlotvsGridSize.txt", std::fstream::in | std::fstream::out | std::fstream::app);
-    err_out << h_ << "\t" << error << std::endl;
-    err_out.close();
-    std::cout<<"Error between the computed and analytical solution for h = 1/"<<numGrid_-1 <<" is : "<<error<<std::endl;
-    return error;
-}*/
-
-
 // This function is written to compute norm of the residual after each V Cycle 
-/*real MultiGridSolver::calResNorm() 
+real MultiGridSolver::calResNorm() 
 {        
         size_t cgInd =0; 
         //std::cout << "Level : " << numLevel_ << " computeResNorm() \n "; 
@@ -193,7 +156,7 @@ void MultiGridSolver::computeSolution()
         return l2Norm;
         
            
-}*/	
+}
 
 	
 MultiGridSolver::~MultiGridSolver()
@@ -293,9 +256,9 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
                         
                         if ((i != midValue) || (j<midValue))  // Skip the middle slit
                         {   
-                                if(i!=0)      // This check insures that we are not updating y=0 line points
+                                //if(i!=0)      // This check insures that we are not updating y=0 line points
                                 {
-                                        if(j!=0)
+                                        //if(j!=0)
                                         gridVec_[cgInd-1]->u_(2*i,2*j,numGridFiner)     +=  (p_.c_*gridVec_[cgInd]->u_(i,j,numGrid));  // CENTER
                                         
                                         gridVec_[cgInd-1]->u_(2*i,2*j+1,numGridFiner)   +=  (p_.e_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) )); // RIGHT
@@ -303,7 +266,7 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
                                 }
                         }        
                         
-                        if(j!=0)       // This check insures that we are not updating x=0 line points 
+                        //if(j!=0)       // This check insures that we are not updating x=0 line points 
                         gridVec_[cgInd-1]->u_(2*i+1,2*j,numGridFiner)   +=  (p_.n_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ));  // UP
                                 
                         gridVec_[cgInd-1]->u_(2*i+1,2*j+1,numGridFiner) +=  (p_.ne_*( gridVec_[cgInd]->u_(i,j,numGrid) +  gridVec_[cgInd]->u_(i,j+1,numGrid) + 
@@ -379,8 +342,8 @@ void MultiGridSolver::mgmSolve(const size_t& level)
         
 }
 
-/*
-This function displays the grid entries err at coarse grid index cgInd
+
+//This function displays the grid entries err at coarse grid index cgInd
 
 void MultiGridSolver::displayGrid(const size_t& level, const size_t& curV_cycle, const std::string& str)
 {
@@ -414,71 +377,125 @@ void MultiGridSolver::displayGrid(const size_t& level, const size_t& curV_cycle,
         
          std::cout << "\n\n";   
 }
-*/
+
+
+void MultiGridSolver::applyRedSweep(const size_t& level, const int& axis)
+{ 
+        size_t rowStart, rowEnd, colEnd;  
+        const int cgInd = numLevel_- level;
+        const size_t numGrid = gridVec_[cgInd]->numGrid_;
+        const real hSq = gridVec_[cgInd]->h_*gridVec_[cgInd]->h_;
+        const size_t midVal = 0.5*(numGrid-1);                              // Since numGrid is even so midValue is always an integer
+        
+        assert(cgInd>=0);
+        
+        if(axis==0)
+        {
+                rowStart  =midVal;
+                rowEnd = midVal+1;
+                colEnd = midVal;
+        }
+        else if(axis ==1)
+        {
+                rowStart = midVal+1;
+                rowEnd = numGrid-1;
+                colEnd = numGrid-1;
+        }
+        else                            // axis is -1 here
+        {       
+                rowStart = 1;
+                rowEnd = midVal;
+                colEnd = numGrid-1;        
+        }                                                          
+        
+        //if(cgInd ==0)
+        //std::cout << "Red sweep points: \n";
+        #pragma omp parallel for schedule(static)
+        for(size_t i=rowStart; i< rowEnd; ++i)
+        {
+                for(size_t j= ((i & 1) ? 1:2); j< colEnd; j+=2)
+                {
+                        
+                        //if(cgInd ==0)
+                        //std::cout << "(" << i << "," << j <<")\n";
+                        gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*( hSq*(gridVec_[cgInd]->f_(i,j,numGrid)) +
+                        gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;    
+                }                        
+
+        }                 
+
+}
+
+void MultiGridSolver::applyBlackSweep(const size_t& level, const int& axis)
+{ 
+        size_t rowStart, rowEnd, colEnd;  
+        const int cgInd = numLevel_- level;
+        const size_t numGrid = gridVec_[cgInd]->numGrid_;
+        const real hSq = gridVec_[cgInd]->h_*gridVec_[cgInd]->h_;
+        const size_t midVal = 0.5*(numGrid-1);                              // Since numGrid is even so midValue is always an integer
+        
+        assert(cgInd>=0);
+        
+        if(axis==0)
+        {
+                rowStart  =midVal;
+                rowEnd = midVal +1;
+                colEnd = midVal;
+        }
+        else if(axis ==1)
+        {
+                rowStart = midVal+1;
+                rowEnd = numGrid-1;
+                colEnd = numGrid-1;
+        }
+        else                            // axis is -1 here
+        {       
+                rowStart = 1;
+                rowEnd = midVal;
+                colEnd = numGrid-1;        
+        }                                                          
+        
+        #pragma omp parallel for schedule(static)
+        for(size_t i=rowStart; i< rowEnd; ++i)
+        {
+                for(size_t j= ((i & 1) ? 2:1); j< colEnd; j+=2)
+                {
+                        gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*( hSq*(gridVec_[cgInd]->f_(i,j,numGrid)) +
+                        gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;    
+                }                        
+
+        }                 
+          
+
+}
+
+
 
 // This function applies the RBGS iter
 void MultiGridSolver::applyRBGS_Iter(const size_t& level)
 {
-        //std::cout << "Coarse Grid Index: " << cgInd << " applyRBGS_Iter() \n ";
-        const int cgInd = numLevel_- level;
-        assert(cgInd>=0);
-        size_t numGrid = gridVec_[cgInd]->numGrid_;
-        const real hSq = gridVec_[cgInd]->h_*gridVec_[cgInd]->h_;
-        size_t loopMax = numGrid-1,j;
-        size_t midValue = 0.5*loopMax;
-        //bool isFirstCol=true;
-
-        ///---------------------------------- RED UPDATE -----------------------------------------------//
+      ///---------------------------------- RED UPDATE -----------------------------------------------//
       // Apply the guass seidel iteration on red interior points
-        #pragma omp parallel for private (j) schedule(static)
-        for(size_t i=1; i< loopMax; ++i)
-        {
-
-             // if i is odd  set j to 1 else set j to 2
-             j= ((i & 1) ? 1:2);
-             //j= (isFirstCol ? 1:2);
-
-                while(j < loopMax)
-                        {
-                                // Leave the middle slit
-                                if ((i != midValue) || (j<midValue))  
-                                gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*( hSq*(gridVec_[cgInd]->f_(i,j,numGrid)) +
-                                gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;
-
-                                j+= 2;
-                        }
-
-           //isFirstCol = !isFirstCol;
-        }
-
-
-       // std::cout << "Grid display after red points update\n";
-        //displayGrid(level);
-
-
-        //isFirstCol = false;
-
-        ///---------------------------------- BLACK UPDATE -----------------------------------------------//
-
-        // Apply the guass seidel iteration on black interior points
-        #pragma omp parallel for private (j) schedule(static)
-        for(size_t i=1; i< loopMax; ++i)
-        {
-             // this check determines wheather to start from 1st OR 2nd column
-             j= ((i & 1) ?  2:1);
-
-                while(j < loopMax)
-                        {
-                                // Leave the middle slit
-                                if ((i != midValue) || (j<midValue)) 
-                                gridVec_[cgInd]->u_(i,j,numGrid) = 0.25*( hSq*(gridVec_[cgInd]->f_(i,j,numGrid)) +
-                                gridVec_[cgInd]->u_(i-1,j,numGrid) + gridVec_[cgInd]->u_(i,j-1,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ) ;
-
-                                j+= 2;
-                        }
-
-           //isFirstCol = !isFirstCol;
-        }
-        //displayGrid(level,currVCycle_, std::string("u")); 
-
+      
+        // update the negative y region points      
+        applyRedSweep(level, -1);
+        
+        // update y=0 interior points
+        applyRedSweep(level, 0);
+        
+        // update the positive y region points      
+        applyRedSweep(level, 1);
+        
+         ///---------------------------------- BLACK UPDATE -----------------------------------------------//
+      // Apply the guass seidel iteration on black interior points
+      
+        // update the negative y region points      
+        applyBlackSweep(level, -1);
+        
+        // update y=0 interior points
+        applyBlackSweep(level, 0);
+        
+        // update the positive y region points      
+        applyBlackSweep(level, 1);
+        
 }

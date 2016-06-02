@@ -57,13 +57,14 @@ MultiGridSolver::MultiGridSolver(const size_t &numLevel, const size_t &numVcycle
 // Compute The solution by applying numVcycle_  
 void MultiGridSolver::computeSolution()
 {
-        real resNormNew, resNormOld=0, convRate;
-        real e = 0.;
-
+        //real resNormNew, resNormOld=0, convRate;
+        //real e = 0.;
+        real time;
+        struct timeval t0, t;
         
         if(numLevel_ ==1)
         {
-                applyRBGS_Iter(1);
+                //applyRBGS_Iter(1);
                 return;
         }        
         
@@ -71,10 +72,12 @@ void MultiGridSolver::computeSolution()
         {
 //            std::cout<<" \n";
 //            std::cout<< "Error at the entry of loop is : " << e << std::endl;
-
-            mgmSolve(numLevel_);    //  1 v cycle
+            
+                gettimeofday(&t0, NULL);   
+                mgmSolve(numLevel_);    //  1 v cycle
+	    
 	     
-            resNormNew = calResNorm();
+            /*resNormNew = calResNorm();
             std::cout << "Discrete L2 residum norm after " <<  currVCycle_ << " V-Cycle is:  " << resNormNew << std::endl;
 //            std::cout<< "Error Limit is : " << errLimit_ << std::endl;
 	       
@@ -98,17 +101,21 @@ void MultiGridSolver::computeSolution()
               std::cout << "Error error after " << currVCycle_ << "  " << e << std::endl; 
 //            std::cout<< "Error at the exit of loop is : " << e << std::endl;
 
-//            std::cout<< "############################### " << std::endl;
+//            std::cout<< "############################### " << std::endl;*/
 
 
-	        // Set the u_ vector to zeros at each level other than finest level after each V Cycles -> At these levels u_'s represents error  
-	        for(size_t i=1; i< numLevel_; ++i)
+	        // Set the u_ vector to zeros at each level other than finest level after each V Cycles -> At these levels u_'s represents error 
+                for(size_t i=1; i< numLevel_; ++i)
 	        std::fill(gridVec_[i]->u_.data_.begin(), gridVec_[i]->u_.data_.end(), 0.0 );
 	        
-	        currVCycle_++;
-
+	   
+	        gettimeofday(&t, NULL);
 	        
-        }
+	        time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	        //std::cout << "Wall clock time of MGMSolve() in " << currVCycle_  << " v-cycle is " << time << " seconds\n"; 
+	        
+	        currVCycle_++;
+          }
          
 
         
@@ -151,7 +158,7 @@ void MultiGridSolver::computeSolution()
 
 
 // This function is written to compute norm of the residual after each V Cycle 
-real MultiGridSolver::calResNorm() 
+/*real MultiGridSolver::calResNorm() 
 {        
         size_t cgInd =0; 
         //std::cout << "Level : " << numLevel_ << " computeResNorm() \n "; 
@@ -186,18 +193,18 @@ real MultiGridSolver::calResNorm()
         return l2Norm;
         
            
-}	
+}*/	
 
 	
 MultiGridSolver::~MultiGridSolver()
 {
         //Deallocate the memory allocated on heap
         //std::cout << " MultiGrid Destructor\n ";
-        /*for(size_t i=0 ; i< numLevel_; ++i)
-                {
+        for(size_t i=0 ; i< numLevel_; ++i)
+        {
                 delete gridVec_[i];
-                }
-                */ 
+        }
+                
 }
 
 // This function smoothens the solution by applying RBGS Guass Seidel neu1_ times
@@ -265,7 +272,7 @@ void MultiGridSolver::applyRestriction(const size_t& level)
 void MultiGridSolver::applyInterpolation(const size_t& level)
 {
         //std::cout << "Level : " << level << " applyInterpolation() \n "; 
-        assert(level > 0 && level< numLevel_ );                      // Level 0 is not permitted
+        assert(level > 0 && level< numLevel_);                      // Level 0 is not permitted
         
         const int cgInd = numLevel_- level;       
                                 
@@ -374,7 +381,7 @@ void MultiGridSolver::mgmSolve(const size_t& level)
 
 /*
 This function displays the grid entries err at coarse grid index cgInd
-*/
+
 void MultiGridSolver::displayGrid(const size_t& level, const size_t& curV_cycle, const std::string& str)
 {
         const int cgInd = numLevel_- level;         
@@ -407,7 +414,7 @@ void MultiGridSolver::displayGrid(const size_t& level, const size_t& curV_cycle,
         
          std::cout << "\n\n";   
 }
-
+*/
 
 // This function applies the RBGS iter
 void MultiGridSolver::applyRBGS_Iter(const size_t& level)

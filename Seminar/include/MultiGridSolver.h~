@@ -3,6 +3,7 @@
 #include "Grid.h"
 #include "Stencil.h"
 #include <iostream>
+#include <sys/time.h>
 
 
 class MultiGridSolver {

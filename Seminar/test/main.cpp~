@@ -1,14 +1,16 @@
 #include "MultiGridSolver.h"
 #include "GridUtil.h"
-#include "Timer.h"
+#include <sys/time.h>
+//#include "Timer.h"
 
 
 int main(int argc, char **argv)
 {
-        assert(argc == 2);
+	real time;
+	struct timeval t0, t;
 	
 	int numLevel = std::stoi(argv[1]);
-        size_t numVcycle= 16;
+        size_t numVcycle= 2;
 	
 	GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();
@@ -22,19 +24,24 @@ int main(int argc, char **argv)
                 //MultiGridSolver m= MultiGridSolver(numLevel,gridUtil.getVec());
 	        
                 std::cout<<"Your Alias: "<<"BleedBlue"<<std::endl;
-                struct timeval t0, t;
+                
+                
+                // =========================================  Main Work ====================================================
+                
                 gettimeofday(&t0, NULL);
                 m.computeSolution();
                 gettimeofday(&t, NULL);
-                std::cout << "Wall clock time of MG execution: " <<
-                ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 +
-                (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3
-                << " ms" << std::endl;
                 
-                //std::cout << "Solution computed after MultiGrid Solver computation: \n";
-//             gridUtil.displayGrid(m.getSolVec());
-                 //gridUtil.writeFinalSol(m.getSolVec());
+                // ==========================================================================================================
+                
+                
+                time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+                std::cout << "Wall clock time of MG execution: " << time << " ms" << std::endl;
+                           
+                //gridUtil.writeFinalSol(m.getSolVec());
                 //GridUtil::measureError(m.getSolVec(), numLevel);
+                real err = GridUtil::measureError(m.getSolVec(), numLevel);
+                std::cout << "Error after "<< numVcycle << " is: " << err << std::endl;
         }
 
         catch (...)
