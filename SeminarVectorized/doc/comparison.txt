@@ -1,0 +1,53 @@
+
+
+./mgsolve 12 1 for non Vectorized Code
+
+Your Alias: BleedBlue
+Wall clock time of applyRBGS_Iter() is 62.596 ms
+Wall clock time of compute Residual()) is 76.07 ms
+Wall clock time of Restriction() is 31.649 ms
+Wall clock time of applyRBGS_Iter() is 60.905 ms
+Wall clock time of MG execution: 369.419 ms
+
+./mgsolve 12 1 for Vectrozied Code 
+
+Your Alias: BleedBlue
+Wall clock time of applyRBGS_Iter() in 157.469 seconds
+Wall clock time of compute Residual() is 246.207 seconds
+Wall clock time of Restriction() in 91.559 seconds
+Wall clock time of applyRBGS_Iter() in 157.43 seconds
+Wall clock time of MGMSolve() in 1002.68 seconds
+Wall clock time of MG execution: 1002.72 ms
+
+
+Full MultiGrid	#CPUs (OpenMP option on Verifer)	Runtime of MG Solver (seconds)
+	1	5.46958
+	2	3.84408
+	4	1.9959
+	8	0.90064
+	16	1.10745
+	32	0.542416
+		
+	Serial option on cluster 	0.459698
+		
+		
+		
+		
+Only V Cycle MultiGrid	#CPUs (OpenMP option on Verifer)	Runtime of MG Solver (seconds)
+	1	9.48118
+	2	4.53418
+	4	2.21559
+	8	1.10856
+	16	1.0314
+	32	0.68125
+		
+	Serial option on cluster 	0.65112
+			
+		
+		
+		
+#pragma omp parallel for schedule(static)	Red Black Smoother	                                        MultiGridSolver::applyRBGS_Iter()
+	                                        Restriction Operator	                                        MultiGridSolver::applyRestriction()
+	                                        Interpolation Operator	                                        MultiGridSolver::applyInterpolation()
+	                                        Residual Computation Operator	                                MultiGridSolver::computeResidual()
+

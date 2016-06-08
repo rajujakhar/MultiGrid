@@ -36,7 +36,7 @@ $(TARGET6).o: ./src/$(TARGET6).cpp
 	$(CXX) -c $(CXXFLAGS)  ./src/$(TARGET6).cpp  -o ./src/$(TARGET6).o					
 	
 clean:
-	@$(RM) -rf ./src/*.o ./test/*.o *.o *.txt $(EXEC) 
+	@$(RM) -rf ./src/*.o ./test/*.o *.o *.txt *.dat $(EXEC) 
 
 run:
 	 ./$(EXEC) 11

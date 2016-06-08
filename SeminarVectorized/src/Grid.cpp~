@@ -1,22 +1,30 @@
-/*#include "Grid.h"
+#include "Grid.h"
 
 
 Grid::Grid(const size_t &level) 
 {
-        const size_t temp = pow(2,level);
+        const size_t temp = (1<<level);   //Equivalent to pow(2,level);
         h_ = 2.0/temp;
         numGrid_ = temp+1;
-        const size_t numTotPoints=numGrid_*numGrid_;
-        this->f_.data_.resize(numTotPoints,0.0);
-        this->res_.data_.resize(numTotPoints,0.0);
-        this->u_.data_.resize(numTotPoints); 
-    
+
+
+        const size_t numBlack = 0.5*(numGrid_*numGrid_ -1);
+        size_t numRed = numBlack + 1;
+
+        std::cout << "Level " << level << " numRed is: " << numRed << " numBlack is: " << numBlack ;
+        std::cout << "  numGrid: " << numGrid_ << std::endl;
+        this->f_red_.resize(numRed, 0.0);
+        this->f_black_.resize(numBlack,0.0);
+        this->res_red_.resize(numRed, 0.0);
+        this->res_black_.resize(numBlack,0.0);
+        this->u_red_.resize(numRed, 0.0);
+        this->u_black_.resize(numBlack,0.0);
 }
 
-*/
 
 
-#include "Grid.h"
+
+/*#include "Grid.h"
 
 
 Grid::Grid(const size_t &level) 
@@ -47,18 +55,18 @@ Grid::Grid(const size_t &level)
                         
                 #pragma omp critical
                 {
-                        u_.data_.insert(u_.data_.end(), u_private.begin(), u_private.end());
-                        f_.data_.insert(f_.data_.end(), f_private.begin(), f_private.end());
-                        res_.data_.insert(res_.data_.end(), res_private.begin(), res_private.end());
+                        u_.insert(u_.end(), u_private.begin(), u_private.end());
+                        f_.insert(f_.end(), f_private.begin(), f_private.end());
+                        res_.insert(res_.end(), res_private.begin(), res_private.end());
                 }
         }
         
-        assert(u_.data_.size() == (numGrid_*numGrid_));
+        assert(u_.size() == (numGrid_*numGrid_));
       
          
         //std::cout << "Level " << level << " grid constructed with total grid points " << numTotPoints << std::endl;  
 }
-
+*/
 
 
             

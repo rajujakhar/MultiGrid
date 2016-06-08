@@ -1,7 +1,7 @@
 #ifndef GRID_H
 #define GRID_H
 
-//#include "TwoDimArr.h"
+#include "TwoDimArr.h"
 #include "Precision.h"
 
 //#define _USE_MATH_DEFINES
@@ -21,13 +21,9 @@ public:
         //static Grid createInstance(const size_t &n);
         real h_;
         size_t numGrid_;
-        std::vector<real> f_red_;
-        std::vector<real> f_black_;
-        std::vector<real> res_red_;
-        std::vector<real> res_black_;
-        std::vector<real> u_red_;
-        std::vector<real> u_black_;
-
+        TwoDimArr f_;
+        TwoDimArr res_;
+        TwoDimArr u_;
 };
 
 #endif

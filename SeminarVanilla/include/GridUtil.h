@@ -18,18 +18,15 @@ class GridUtil {
 private:
         size_t numGrid_;
         real h_;
-        TwoDimArr u_red_;
-        TwoDimArr u_black_;
+        TwoDimArr u_;
         
 public: 
         GridUtil(const size_t &level);
         ~GridUtil();
         void setBCs();
         void displayGrid(const TwoDimArr &) const;
-        void displayRedBlackGrid() const;
         void displayGrid() const;
-        TwoDimArr& getBlackVec();
-        TwoDimArr& getRedVec();
+        TwoDimArr& getVec();
         void writeFinalSol(const TwoDimArr &) const;
         void writeInitSol() const;
         static real measureError(const TwoDimArr&, const size_t&, const real& );

@@ -21,9 +21,13 @@ public:
         //static Grid createInstance(const size_t &n);
         real h_;
         size_t numGrid_;
-        TwoDimArr f_;
-        TwoDimArr res_;
-        TwoDimArr u_;
+        std::vector<real> f_red_;
+        std::vector<real> f_black_;
+        std::vector<real> res_red_;
+        std::vector<real> res_black_;
+        std::vector<real> u_red_;
+        std::vector<real> u_black_;
+
 };
 
 #endif

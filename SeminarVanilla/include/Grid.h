@@ -23,9 +23,7 @@ public:
         size_t numGrid_;
         TwoDimArr f_;
         TwoDimArr res_;
-        TwoDimArr u_black_;
-        TwoDimArr u_red_;
-
+        TwoDimArr u_;
 };
 
 #endif

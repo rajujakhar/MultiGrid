@@ -207,6 +207,9 @@ void MultiGridSolver::applyRestriction(const size_t& level)
         const size_t numGrid = gridVec_[cgInd]->numGrid_;
         const size_t numGridCoarser = gridVec_[cgInd+1]->numGrid_;
          
+        struct timeval t0, t;
+        real time;
+        gettimeofday(&t0, NULL); 
         #pragma omp parallel for schedule(static)
         for(size_t i=2; i<numGrid-2; i+=2)     
                 {
@@ -226,7 +229,11 @@ void MultiGridSolver::applyRestriction(const size_t& level)
                                 }
                 }
          
-         //displayGrid(level-1,currVCycle_, std::string("f"));         
+         //displayGrid(level-1,currVCycle_, std::string("f")); 
+         gettimeofday(&t, NULL);
+          time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	        if(level == numLevel_)
+	        std::cout << "Wall clock time of restriction() is "  << time << " ms\n";          
                      
 }
 
@@ -247,7 +254,9 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
         
         //std::cout << "u before interpolation\n";
         //displayGrid(level+1,currVCycle_, std::string("u")); 
-        
+       struct timeval t0, t;
+        real time;
+        gettimeofday(&t0, NULL);  
         #pragma omp parallel for schedule(static)
         for(size_t i=0; i<numGrid-1; ++i)
         {
@@ -256,9 +265,9 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
                         
                         if ((i != midValue) || (j<midValue))  // Skip the middle slit
                         {   
-                                //if(i!=0)      // This check insures that we are not updating y=0 line points
+                                if(i!=0)      // This check insures that we are not updating y=0 line points
                                 {
-                                        //if(j!=0)
+                                        if(j!=0)
                                         gridVec_[cgInd-1]->u_(2*i,2*j,numGridFiner)     +=  (p_.c_*gridVec_[cgInd]->u_(i,j,numGrid));  // CENTER
                                         
                                         gridVec_[cgInd-1]->u_(2*i,2*j+1,numGridFiner)   +=  (p_.e_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i,j+1,numGrid) )); // RIGHT
@@ -266,7 +275,7 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
                                 }
                         }        
                         
-                        //if(j!=0)       // This check insures that we are not updating x=0 line points 
+                        if(j!=0)       // This check insures that we are not updating x=0 line points 
                         gridVec_[cgInd-1]->u_(2*i+1,2*j,numGridFiner)   +=  (p_.n_*(gridVec_[cgInd]->u_(i,j,numGrid) + gridVec_[cgInd]->u_(i+1,j,numGrid) ));  // UP
                                 
                         gridVec_[cgInd-1]->u_(2*i+1,2*j+1,numGridFiner) +=  (p_.ne_*( gridVec_[cgInd]->u_(i,j,numGrid) +  gridVec_[cgInd]->u_(i,j+1,numGrid) + 
@@ -274,7 +283,11 @@ void MultiGridSolver::applyInterpolation(const size_t& level)
                                                                                    
                 }
         }
-         //displayGrid(level+1,currVCycle_, std::string("u")); 
+         //displayGrid(level+1,currVCycle_, std::string("u"));
+         gettimeofday(&t, NULL); 
+          time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	        if(level == numLevel_)
+	        std::cout << "Wall clock time of Interploation() is "  << time << " ms\n";  
         
         
 }
@@ -289,6 +302,9 @@ void MultiGridSolver::computeResidual(const size_t& level)
         const size_t numGrid = gridVec_[cgInd]->numGrid_;    
         const real hSqInv = 1.0/(gridVec_[cgInd]->h_ * gridVec_[cgInd]->h_);
         
+        struct timeval t0, t;
+        real time;
+        gettimeofday(&t0, NULL); 
         #pragma omp parallel for schedule(static)
         for(size_t i=1; i<numGrid-1; ++i)
         {
@@ -299,6 +315,12 @@ void MultiGridSolver::computeResidual(const size_t& level)
                 }
         } 
         
+        gettimeofday(&t, NULL);
+         time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+         
+         
+	        if(level == numLevel_)
+	        std::cout << "Wall clock time of Compute REsidual() is "  << time << " ms\n";  
          //displayGrid(level,currVCycle_, std::string("res")); 
 }
 
@@ -567,20 +589,25 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
 {
       ///---------------------------------- RED UPDATE -----------------------------------------------//
       // Apply the guass seidel iteration on red interior points
-      
+        
+        struct timeval t0, t;
+        real time;
+        gettimeofday(&t0, NULL); 
         // update the negative y region points      
         applyRedSweep(level, -1);
         
         // update y=0 interior points
         applyRedSweep(level, 0);
         
-        // update the positive y region points      
+        // update the positive y region time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	       
         applyRedSweep(level, 1);
         
          ///---------------------------------- BLACK UPDATE -----------------------------------------------//
       // Apply the guass seidel iteration on black interior points
       
-        // update the negative y region points      
+        // update the negative y region time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	        
         applyBlackSweep(level, -1);
         
         // update y=0 interior points
@@ -588,5 +615,10 @@ void MultiGridSolver::applyRBGS_Iter(const size_t& level)
         
         // update the positive y region points      
         applyBlackSweep(level, 1);
+        
+        gettimeofday(&t, NULL); 
+                time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
+	        if(level == numLevel_)
+	        std::cout << "Wall clock time of RBGS() is "  << time << " ms\n";  
         
 }

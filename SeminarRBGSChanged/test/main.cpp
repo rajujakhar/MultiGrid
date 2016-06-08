@@ -17,16 +17,13 @@ int main(int argc, char **argv)
 	
 	GridUtil gridUtil(numLevel);
 	gridUtil.setBCs();
-        //gridUtil.displayRedBlackGrid();
 	//gridUtil.writeInitSol();
 	//gridUtil.displayGrid();
-
-    //Grid dummy(numLevel);
 	
 	// Creates a object of MultiGridSolver class and compute the solution using Multigrid solver
-    try
+	try
 	{
-                MultiGridSolver m= MultiGridSolver(numLevel,numVcycle,gridUtil.getRedVec(), gridUtil.getBlackVec());
+                MultiGridSolver m= MultiGridSolver(numLevel,numVcycle,gridUtil.getVec());
                 //MultiGridSolver m= MultiGridSolver(numLevel,gridUtil.getVec());
 	        
                 std::cout<<"Your Alias: "<<"BleedBlue"<<std::endl;
@@ -44,9 +41,9 @@ int main(int argc, char **argv)
                 time = ((int64_t)(t.tv_sec - t0.tv_sec) * (int64_t)1000000 + (int64_t)t.tv_usec - (int64_t)t0.tv_usec) * 1e-3 ;
                 std::cout << "Wall clock time of MG execution: " << time << " ms" << std::endl;
                            
-                //gridUtil.writeFinalSol(m.getRedVec(), m.getBlackVec());
-                //real err = GridUtil::measureError(m.getSolVec(), numLevel);
-                //std::cout << "Error after "<< numVcycle << " is: " << err << std::endl;
+                //gridUtil.writeFinalSol(m.getSolVec());
+                real err = GridUtil::measureError(m.getSolVec(), numLevel);
+                std::cout << "Error after "<< numVcycle << " is: " << err << std::endl;
         }
 
         catch (...)
